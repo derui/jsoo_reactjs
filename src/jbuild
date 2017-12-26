@@ -1,7 +1,7 @@
 (jbuild_version 1)
 
-(executable
- ((name roo_core)
+(library
+ ((name std)
   (public_name reactjs_of_ocaml)
   (libraries (js_of_ocaml))
   (js_of_ocaml ((flags ("--pretty"))))

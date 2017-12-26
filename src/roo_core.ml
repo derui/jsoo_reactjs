@@ -106,6 +106,7 @@ let create_component : ('p, 's) Component_spec.t ->
 
 (* alias function for React.createElement *)
 let create_element component = React.t##createElement component
+let text v = Obj.magic v
 
 (* Export ReactDOM API *)
 let dom = Dom.t

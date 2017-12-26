@@ -17,5 +17,6 @@ depends: [
   "js_of_ocaml" {build & >= "3.0.2"}
   "js_of_ocaml-ppx" {build & >= "3.0.2"}
   "ppx_variants_conv" {>= "v0.10.0"}
+  "mocha_of_ocaml" {"test"}
 ]
 available: [ocaml-version >= "4.05.0"]

@@ -59,4 +59,7 @@ val create_component :
 
 val create_element : ('a, 'b) React.component Js.t -> React.element Js.t
 
+(* Create element for text node *)
+val text: string -> React.element Js.t
+
 val dom : Dom.dom Js.t
