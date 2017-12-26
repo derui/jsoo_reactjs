@@ -1,7 +1,7 @@
 (jbuild_version 1)
 
 (library
- ((name std)
+ ((name reactjs_of_ocaml)
   (public_name reactjs_of_ocaml)
   (libraries (js_of_ocaml))
   (js_of_ocaml ((flags ("--pretty"))))

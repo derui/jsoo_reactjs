@@ -1,8 +1,3 @@
-let require module_ : 'a Js.t =
-  let require = Js.Unsafe.pure_js_expr "require" in
-  let module_ = Js.string module_ in
-  Js.Unsafe.(fun_call require [|inject module_|])
-
 module Helper = struct
   module Option = struct
     let (>|=) v f = match v with
@@ -34,12 +29,21 @@ module React = struct
     method componentWillUnmount: unit Js.meth Js.opt
   end
 
+  class type element_spec = object
+    method key: Js.js_string Js.t Js.optdef_prop
+    method className: Js.js_string Js.t Js.optdef_prop
+  end
+
   class type react = object
-    method createElement: (_, _) component Js.t -> element Js.t Js.meth
+    method createElement: ('a, _) component Js.t -> 'a Js.optdef ->
+      element Js.t Js.js_array Js.t Js.optdef -> element Js.t Js.meth
+    method createElement_tag: Js.js_string Js.t -> element_spec Js.t Js.optdef ->
+      element Js.t Js.js_array Js.t Js.optdef ->
+      element Js.t Js.meth
   end
 
   (* create component from spec. *)
-  let t : react Js.t = require "react"
+  let t : react Js.t = Js.Unsafe.pure_js_expr "require('react')"
 
 end
 
@@ -93,7 +97,7 @@ module Dom = struct
     method unmountComponentAtNode: Dom_html.element Js.t -> unit Js.meth
   end
 
-  let t : dom Js.t = require "react-dom"
+  let t : dom Js.t = Js.Unsafe.pure_js_expr "require('react-dom')"
 end
 
 let _create_class_of_spec = Js.Unsafe.js_expr Roo_raw.react_create_class_raw
@@ -105,8 +109,24 @@ let create_component : ('p, 's) Component_spec.t ->
   Js.Unsafe.(fun_call _create_class_of_spec [|inject React.t; inject spec|])
 
 (* alias function for React.createElement *)
-let create_element component = React.t##createElement component
-let text v = Obj.magic v
+let create_element ?prop ?children component =
+  let prop = Js.Optdef.option prop in
+  let children = match children with
+    | None -> Js.Optdef.empty
+    | Some v -> Js.array v |> Js.Optdef.return
+  in 
+  React.t##createElement component prop children
+
+let create_dom_element ?prop ?children tag =
+  let tag = Js.string tag in 
+  let prop = Js.Optdef.option prop in
+  let children = match children with
+    | None -> Js.Optdef.empty
+    | Some v -> Js.array v |> Js.Optdef.return
+  in 
+  React.t##createElement_tag tag prop children
+
+let text v = Obj.magic @@ Js.string v
 
 (* Export ReactDOM API *)
 let dom = Dom.t

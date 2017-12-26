@@ -8,12 +8,11 @@ module React : sig
       method state : 'state Js.prop
     end
 
-  class type react =
-    object
-      method createElement :
-        ('a, 'b) component Js.t -> element Js.t Js.meth
-    end
-  val t : react Js.t
+  class type element_spec = object
+    method key: Js.js_string Js.t Js.optdef_prop
+    method className: Js.js_string Js.t Js.optdef_prop
+  end
+
 end
 
 (* The module providing component spec to be able to create component via React API.
@@ -47,17 +46,18 @@ end
 module Dom : sig
   class type dom =
     object
-      method render :
-        React.element Js.t -> Dom_html.element Js.t -> unit Js.meth
+      method render : React.element Js.t -> Dom_html.element Js.t -> unit Js.meth
       method unmountComponentAtNode : Dom_html.element Js.t -> unit Js.meth
     end
   val t : dom Js.t
 end
 
-val create_component :
-  ('p, 's) Component_spec.t -> ('p, 's) React.component Js.t
+val create_component : ('p, 's) Component_spec.t -> ('p, 's) React.component Js.t
 
-val create_element : ('a, 'b) React.component Js.t -> React.element Js.t
+val create_element : ?prop:'a -> ?children:React.element Js.t array ->
+  ('a, 'b) React.component Js.t -> React.element Js.t
+val create_dom_element: ?prop:React.element_spec Js.t -> ?children:React.element Js.t array ->
+  string -> React.element Js.t
 
 (* Create element for text node *)
 val text: string -> React.element Js.t

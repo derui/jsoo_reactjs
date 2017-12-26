@@ -1,0 +1,13 @@
+(jbuild_version 1)
+
+(alias
+ ((name runtest)
+  (deps (test_reactjs_of_ocaml.bc.js))
+  (action (run npm run test))
+  ))
+
+(executable
+ ((name test_reactjs_of_ocaml)
+  (libraries (js_of_ocaml reactjs_of_ocaml mocha_of_ocaml))
+  (js_of_ocaml ((flags ("--pretty" "--sourcemap"))))
+  (preprocess (pps (js_of_ocaml-ppx)))))

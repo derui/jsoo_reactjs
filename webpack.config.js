@@ -20,4 +20,5 @@ module.exports = {
   resolve: {
     extensions: ['.js'],
   },
+  cache: true
 }
