@@ -33,5 +33,21 @@ let _ =
             let text = Js.Opt.get (index##.textContent) option |> Js.to_string in
             Lwt.return @@ assert_ok ("foo" = text)
           )
+      );
+
+    "can create original component" >:- (fun () ->
+        prepare ();
+        let span = R.Dom.of_tag `span ~children:[|
+            R.Core.text "foo"
+          |] in
+        let index = Dom_html.getElementById "js" in
+        R.Core.dom##render span index;
+
+        let open Lwt.Infix in
+        Lwt_js.sleep 0.0 >>= (fun () ->
+            let option () = Js.string "" in 
+            let text = Js.Opt.get (index##.textContent) option |> Js.to_string in
+            Lwt.return @@ assert_ok ("foo" = text)
+          )
       )
   ];
