@@ -4,9 +4,9 @@ version: "0.1.0"
 maintainer: "derutakayu@gmail.com"
 authors: "derui"
 license: "MIT"
-homepage: "https://github.com/derui/reactjs_of_ocaml"
-bug-reports: "https://github.com/derui/reactjs_of_ocaml"
-dev-repo: "https://github.com/derui/reactjs_of_ocaml"
+homepage: "https://github.com/derui/reactjscaml"
+bug-reports: "https://github.com/derui/reactjscaml"
+dev-repo: "https://github.com/derui/reactjscaml"
 tags: []
 build: [
   "jbuilder" "build" "-p" name "-j" jobs

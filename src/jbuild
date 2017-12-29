@@ -1,7 +1,7 @@
 (jbuild_version 1)
 
 (library
- ((name reactjs_of_ocaml)
-  (public_name reactjs_of_ocaml)
+ ((name reactjscaml)
+  (public_name reactjscaml)
   (libraries (js_of_ocaml))
   (preprocess (pps (js_of_ocaml-ppx ppx_variants_conv)))))

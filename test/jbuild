@@ -2,12 +2,12 @@
 
 (alias
  ((name runtest)
-  (deps (test_reactjs_of_ocaml.bc.js))
+  (deps (test_reactjscaml.bc.js))
   (action (run npm run test))
   ))
 
 (executable
- ((name test_reactjs_of_ocaml)
-  (libraries (js_of_ocaml reactjs_of_ocaml mocha_of_ocaml))
+ ((name test_reactjscaml)
+  (libraries (js_of_ocaml reactjscaml mocha_of_ocaml))
   (js_of_ocaml ((flags ("--pretty" "--source-map-inline"))))
   (preprocess (pps (js_of_ocaml-ppx)))))

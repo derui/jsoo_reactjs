@@ -3,7 +3,7 @@ const path = require("path");
 module.exports = {
   // どのファイルをビルドするのかを指定。複数可。
   entry: [
-    './_build/default/test/test_reactjs_of_ocaml.bc.js'
+    './_build/default/test/test_reactjscaml.bc.js'
   ],
   // 出力するファイル名と出力先パス
 
