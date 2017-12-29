@@ -23,7 +23,7 @@ end
 module Component_spec : sig
   type ('props, 'state) t = {
     initialize : (('props, 'state) React.stateful_component Js.t -> unit) option;
-    render : ('props, 'state) React.stateful_component Js.t -> unit;
+    render : ('props, 'state) React.stateful_component Js.t -> React.element Js.t;
     should_component_update :
       (('props, 'state) React.stateful_component Js.t -> 'props -> 'state -> bool)
         option;
@@ -42,6 +42,8 @@ module Component_spec : sig
       (('props, 'state) React.stateful_component Js.t -> 'props -> 'state -> bool)
         option;
   }
+
+  val empty: ('props, 'state) t
 end
 
 (* The module providing ReactDOM API as easy as possible. *)

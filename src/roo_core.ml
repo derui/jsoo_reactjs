@@ -56,7 +56,7 @@ end
 module Component_spec = struct
   type ('props, 'state) t = {
     initialize: (('props, 'state) React.stateful_component Js.t -> unit) option;
-    render: ('props, 'state) React.stateful_component Js.t -> unit;
+    render: ('props, 'state) React.stateful_component Js.t -> React.element Js.t;
     should_component_update:
       (('props, 'state) React.stateful_component Js.t -> 'props -> 'state -> bool) option;
     component_will_receive_props: (('props, 'state) React.stateful_component Js.t -> 'props -> bool) option;
@@ -67,6 +67,18 @@ module Component_spec = struct
       (('props, 'state) React.stateful_component Js.t -> 'props -> 'state -> bool) option;
     component_did_update:
       (('props, 'state) React.stateful_component Js.t -> 'props -> 'state -> bool) option;
+  }
+
+  let empty = {
+    initialize = None;
+    render = (fun _ -> Obj.magic Js.null);
+    should_component_update = None;
+    component_will_receive_props = None;
+    component_will_mount = None;
+    component_will_unmount = None;
+    component_did_mount = None;
+    component_will_update = None;
+    component_did_update = None
   }
 
   let to_js_spec spec =
@@ -105,7 +117,9 @@ module Dom = struct
   let t : dom Js.t = Js.Unsafe.pure_js_expr "require('react-dom')"
 end
 
-let _create_class_of_spec = Js.Unsafe.js_expr Roo_raw.react_create_class_raw
+let _create_class_of_spec =
+  let f = Js.Unsafe.js_expr Roo_raw.react_create_class_raw in
+  Js.Unsafe.fun_call f [||]
 
 (* Create component from OCaml's component spec *)
 let create_stateful_component : ('p, 's) Component_spec.t ->

@@ -58,5 +58,43 @@ let _ =
             let text = Js.Opt.get (index##.textContent) option |> Js.to_string in
             Lwt.return @@ assert_ok ("bar" = text)
           )
-      )
+      );
+
+    "can create original stateful component" >:- (fun () ->
+        prepare ();
+        let module M = R.Component.Make_stateful(struct
+            class type _t = object
+              method name: Js.js_string Js.t Js.readonly_prop
+            end
+            type t = _t Js.t
+          end)
+            (struct
+            class type _t = object
+              method real_name: Js.js_string Js.t Js.prop
+            end
+            type t = _t Js.t
+          end) in
+        let component = M.make { R.Core.Component_spec.empty with
+            R.Core.Component_spec.initialize = Some (fun this ->
+              let name = Js.to_string this##.props##.name in
+              this##.state := object%js
+                val mutable real_name = Js.string ("Hello " ^ name)
+              end);
+            render = (fun this ->
+                R.Dom.of_tag `span ~children:[|R.text @@ Js.to_string this##.state##.real_name|]
+              );
+          } in
+        let index = Dom_html.getElementById "js" in
+        let element = R.create_element component ~props:(object%js
+            val name = Js.string "bar"
+          end) in
+        R.dom##render element index;
+
+        let open Lwt.Infix in
+        Lwt_js.sleep 0.0 >>= (fun () ->
+            let option () = Js.string "" in 
+            let text = Js.Opt.get (index##.textContent) option |> Js.to_string in
+            Lwt.return @@ assert_ok ("Hello bar" = text)
+          )
+      );
   ];
