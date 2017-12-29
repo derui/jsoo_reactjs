@@ -19,7 +19,7 @@ module React = struct
 
   type ('props, 'state) component =
     | Stateful of ('props, 'state) stateful_component Js.t
-    | Stateless of ('props -> element Js.t) Js.callback
+    | Stateless of ('props -> element Js.t)
 
   class type ['props, 'state] js_component_spec = object
     method constructor: ('props, 'state) stateful_component Js.t -> unit Js.meth Js.opt
@@ -39,13 +39,12 @@ module React = struct
   end
 
   class type react = object
-    method createElement_stateful: ('a, _) stateful_component Js.t -> 'a Js.optdef ->
-      element Js.t Js.js_array Js.t Js.optdef -> element Js.t Js.meth
-    method createElement_stateless: ('a -> element Js.t) Js.callback -> 'a Js.optdef ->
-      element Js.t Js.js_array Js.t Js.optdef -> element Js.t Js.meth
-    method createElement_tag: Js.js_string Js.t -> element_spec Js.t Js.optdef ->
-      element Js.t Js.js_array Js.t Js.optdef ->
-      element Js.t Js.meth
+    method createElement_stateful: ('a, _) stateful_component Js.t -> 'a Js.opt ->
+      element Js.t Js.js_array Js.t -> element Js.t Js.meth
+    method createElement_stateless: ('a -> element Js.t) -> 'a Js.opt ->
+      element Js.t Js.js_array Js.t -> element Js.t Js.meth
+    method createElement_tag: Js.js_string Js.t -> element_spec Js.t Js.opt ->
+      element Js.t Js.js_array Js.t -> element Js.t Js.meth
   end
 
   (* create component from spec. *)
@@ -71,7 +70,7 @@ module Component_spec = struct
   }
 
   let to_js_spec spec =
-    let open Helper.Option in 
+    let open Helper.Option in
     object%js
       val constructor = Js.Opt.option @@ (spec.initialize >|= Js.wrap_meth_callback)
       val render = Js.wrap_meth_callback spec.render
@@ -115,28 +114,31 @@ let create_stateful_component : ('p, 's) Component_spec.t ->
   React.Stateful (Js.Unsafe.(fun_call _create_class_of_spec [|inject React.t; inject spec|]))
 
 let create_stateless_component : ('p -> React.element Js.t) ->
-  ('p, 's) React.component = fun spec ->
-  React.Stateless (Js.wrap_callback spec)
+  ('p, unit) React.component = fun spec ->
+  (* NOTE: ReactJS with functional component will check passed function to
+     ReactDOM.render, so we can not wrap a ocaml function that will call in React.
+  *)
+  React.Stateless spec
 
 (* alias function for React.createElement *)
-let create_element ?prop ?children component =
-  let prop = Js.Optdef.option prop in
+let create_element ?props ?children component =
+  let props = Js.Opt.option props in
   let children = match children with
-    | None -> Js.Optdef.empty
-    | Some v -> Js.array v |> Js.Optdef.return
-  in 
+    | None -> Js.array [||]
+    | Some v -> Js.array v
+  in
   match component with
-  | React.Stateful component -> React.t##createElement_stateful component prop children
-  | React.Stateless component -> React.t##createElement_stateless component prop children
+  | React.Stateful component -> React.t##createElement_stateful component props children
+  | React.Stateless component -> React.t##createElement_stateless component props children
 
-let create_dom_element ?prop ?children tag =
-  let tag = Js.string tag in 
-  let prop = Js.Optdef.option prop in
+let create_dom_element ?props ?children tag =
+  let tag = Js.string tag in
+  let props = Js.Opt.option props in
   let children = match children with
-    | None -> Js.Optdef.empty
-    | Some v -> Js.array v |> Js.Optdef.return
-  in 
-  React.t##createElement_tag tag prop children
+    | None -> Js.array [||]
+    | Some v -> Js.array v
+  in
+  React.t##createElement_tag tag props children
 
 let text v = Obj.magic @@ Js.string v
 

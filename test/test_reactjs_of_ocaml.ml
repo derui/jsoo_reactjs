@@ -21,11 +21,9 @@ let _ =
   "React element" >::: [
     "can create most simple text element" >:- (fun () ->
         prepare ();
-        let span = R.Dom.of_tag `span ~children:[|
-            R.Core.text "foo"
-          |] in
+        let span = R.Dom.of_tag `span ~children:[| R.text "foo" |] in
         let index = Dom_html.getElementById "js" in
-        R.Core.dom##render span index;
+        R.dom##render span index;
 
         let open Lwt.Infix in
         Lwt_js.sleep 0.0 >>= (fun () ->
@@ -35,19 +33,30 @@ let _ =
           )
       );
 
-    "can create original component" >:- (fun () ->
+    "can create original stateless component" >:- (fun () ->
         prepare ();
-        let span = R.Dom.of_tag `span ~children:[|
-            R.Core.text "foo"
-          |] in
+        let module M = R.Component.Make_stateless(struct
+            class type _t = object
+              method name: Js.js_string Js.t Js.readonly_prop
+            end
+            type t = _t Js.t
+          end) in
+        let component = M.make (fun props ->
+            R.Dom.of_tag `span ~children:[|
+              R.text @@ Js.to_string props##.name
+            |]
+          ) in
         let index = Dom_html.getElementById "js" in
-        R.Core.dom##render span index;
+        let element = R.create_element component ~props:(object%js
+            val name = Js.string "bar"
+          end) in
+        R.dom##render element index;
 
         let open Lwt.Infix in
         Lwt_js.sleep 0.0 >>= (fun () ->
             let option () = Js.string "" in 
             let text = Js.Opt.get (index##.textContent) option |> Js.to_string in
-            Lwt.return @@ assert_ok ("foo" = text)
+            Lwt.return @@ assert_ok ("bar" = text)
           )
       )
   ];

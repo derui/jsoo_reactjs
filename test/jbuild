@@ -9,5 +9,5 @@
 (executable
  ((name test_reactjs_of_ocaml)
   (libraries (js_of_ocaml reactjs_of_ocaml mocha_of_ocaml))
-  (js_of_ocaml ((flags ("--pretty" "--sourcemap"))))
+  (js_of_ocaml ((flags ("--pretty" "--source-map-inline"))))
   (preprocess (pps (js_of_ocaml-ppx)))))
