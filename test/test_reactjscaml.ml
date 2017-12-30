@@ -97,4 +97,58 @@ let _ =
             Lwt.return @@ assert_ok ("Hello bar" = text)
           )
       );
+
+    "can handle some event for stateful component" >:- (fun () ->
+        prepare ();
+
+        let module M = R.Component.Make_stateful(struct
+            class type _t = object
+              method name: Js.js_string Js.t Js.readonly_prop
+            end
+            type t = _t Js.t
+          end)
+            (struct
+            class type _t = object
+              method events: Js.js_string Js.t Js.js_array Js.t Js.prop
+            end
+            type t = _t Js.t
+          end) in
+
+        let component = M.make { R.Core.Component_spec.empty with
+            R.Core.Component_spec.initialize = Some (fun this ->
+              let name = this##.props##.name in
+              this##.state := object%js
+                val mutable events = Js.array [|name|]
+              end);
+            render = (fun this ->
+                let children = Js.to_array this##.state##.events in
+                let children = Array.map (fun v ->
+                    let v = (Js.to_string v) ^ "\n" in R.text v
+                  ) children in
+                R.Dom.of_tag `span ~children
+              );
+            component_did_mount = Some (fun this ->
+                let event = Js.array [|Js.string "did_mount"|] in
+                this##setState (object%js
+                  val mutable events = this##.state##.events##concat event
+                end)
+              );
+          } in
+        let index = Dom_html.getElementById "js" in
+        let element = R.create_element component ~props:(object%js
+            val name = Js.string "bar"
+          end) in
+        R.dom##render element index;
+
+        let open Lwt.Infix in
+        Lwt_js.sleep 0.0 >>= (fun () ->
+            let option () = Js.string "" in 
+            let text = Js.Opt.get (index##.textContent) option |> Js.to_string in
+            let v = String.split_on_char '\n' text
+                    |> List.filter (fun v -> v <> "")
+                    |> Array.of_list in
+            Lwt.return @@ assert_ok ([|"bar"; "did_mount"|] = v)
+          )
+      );
+
   ];

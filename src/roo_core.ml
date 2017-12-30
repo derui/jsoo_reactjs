@@ -62,7 +62,7 @@ module Component_spec = struct
     component_will_receive_props: (('props, 'state) React.stateful_component Js.t -> 'props -> bool) option;
     component_will_mount: (('props, 'state) React.stateful_component Js.t -> unit) option;
     component_will_unmount: (('props, 'state) React.stateful_component Js.t -> unit) option;
-    component_did_mount: (('props, 'state) React.stateful_component Js.t -> bool) option;
+    component_did_mount: (('props, 'state) React.stateful_component Js.t -> unit) option;
     component_will_update:
       (('props, 'state) React.stateful_component Js.t -> 'props -> 'state -> bool) option;
     component_did_update:

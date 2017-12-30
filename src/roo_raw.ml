@@ -40,7 +40,7 @@ let react_create_class_raw = {|
         key: "componentDidMount",
         value: function componentDidMount() {
           if (spec.componentDidMount) {
-            spec.compoientDidMount.call(this);
+            spec.componentDidMount.call(this);
           }
         }
       }, {

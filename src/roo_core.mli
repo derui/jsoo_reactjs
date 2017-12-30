@@ -34,7 +34,7 @@ module Component_spec : sig
     component_will_unmount :
       (('props, 'state) React.stateful_component Js.t -> unit) option;
     component_did_mount :
-      (('props, 'state) React.stateful_component Js.t -> bool) option;
+      (('props, 'state) React.stateful_component Js.t -> unit) option;
     component_will_update :
       (('props, 'state) React.stateful_component Js.t -> 'props -> 'state -> bool)
         option;
