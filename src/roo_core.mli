@@ -11,8 +11,8 @@ module React : sig
   type ('props, 'state) component
 
   class type element_spec = object
-    method key: Js.js_string Js.t Js.optdef_prop
-    method className: Js.js_string Js.t Js.optdef_prop
+    method key: Js.js_string Js.t Js.optdef Js.readonly_prop
+    method className: Js.js_string Js.t Js.optdef Js.readonly_prop
   end
 
 end
