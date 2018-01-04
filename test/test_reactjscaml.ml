@@ -47,7 +47,7 @@ let _ =
             |]
           ) in
         let index = Dom_html.getElementById "js" in
-        let element = R.create_element component ~props:(object%js
+        let element = R.element component ~props:(object%js
             val name = Js.string "bar"
           end) in
         R.dom##render element index;
@@ -85,7 +85,7 @@ let _ =
               );
           } in
         let index = Dom_html.getElementById "js" in
-        let element = R.create_element component ~props:(object%js
+        let element = R.element component ~props:(object%js
             val name = Js.string "bar"
           end) in
         R.dom##render element index;
@@ -135,7 +135,7 @@ let _ =
               );
           } in
         let index = Dom_html.getElementById "js" in
-        let element = R.create_element component ~props:(object%js
+        let element = R.element component ~props:(object%js
             val name = Js.string "bar"
           end) in
         R.dom##render element index;
