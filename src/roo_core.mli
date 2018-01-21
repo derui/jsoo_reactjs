@@ -10,9 +10,53 @@ module React : sig
 
   type ('props, 'state) component
 
-  class type element_spec = object
-    method key: Js.js_string Js.t Js.optdef Js.readonly_prop
-    method className: Js.js_string Js.t Js.optdef Js.readonly_prop
+  module Event : sig
+    class type synthetic_event = object
+      method bubbles: bool Js.t Js.readonly_prop
+      method cancelable: bool Js.t Js.readonly_prop
+      method currentTarget: 'a Js.t Js.readonly_prop
+      method defaultPrevented: bool Js.t Js.readonly_prop
+      method eventPhase: Js.number Js.t Js.readonly_prop
+      method isTrusted: bool Js.t Js.readonly_prop
+      method nativeEvent: 'a Dom.event Js.t Js.readonly_prop
+      method preventDefault: unit -> unit Js.meth
+      method isDefaultPrevented: unit -> bool Js.t Js.meth
+      method stopPropagation: unit -> unit Js.meth
+      method isPropagationStopped: unit -> bool Js.t Js.meth
+      method target: 'a Js.t Js.readonly_prop
+      method timeStamp: Js.number Js.t Js.readonly_prop
+      method _type: Js.js_string Js.t Js.readonly_prop
+    end
+
+    class type keyboard_event = object
+      inherit synthetic_event
+
+      method altKey: bool Js.t Js.readonly_prop
+      method charCode: Js.number Js.t Js.readonly_prop
+      method ctrlKey: bool Js.t Js.readonly_prop
+      method getModifierState: Js.js_string Js.t -> bool Js.t Js.meth
+      method key: Js.js_string Js.t Js.readonly_prop
+      method keyCode: Js.number Js.t Js.readonly_prop
+      method locale: Js.js_string Js.t Js.readonly_prop
+      method location: Js.number Js.t Js.readonly_prop
+      method metaKey: bool Js.t Js.readonly_prop
+      method repeat: bool Js.t Js.readonly_prop
+      method shiftKey: bool Js.t Js.readonly_prop
+      method which: Js.number Js.t Js.readonly_prop
+    end
+  end
+
+  module Element_spec : sig
+    type t = {
+      key: string option;
+      class_name: string option;
+      on_key_down: (Event.keyboard_event Js.t -> unit) option;
+      on_key_press: (Event.keyboard_event Js.t -> unit) option;
+      on_key_up: (Event.keyboard_event Js.t -> unit) option;
+    }
+
+    val empty: unit -> t
+
   end
 
 end
@@ -65,7 +109,8 @@ val create_stateless_component : ('p -> React.element Js.t) -> ('p, unit) React.
 val create_element : ?props:'a -> ?children:React.element Js.t array ->
   ('a, 'b) React.component -> React.element Js.t
 (* Create element with component *)
-val create_dom_element: ?props:React.element_spec Js.t -> ?children:React.element Js.t array ->
+
+val create_dom_element: ?props:React.Element_spec.t -> ?children:React.element Js.t array ->
   string -> React.element Js.t
 (* Create element with tag *)
 

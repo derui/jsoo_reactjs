@@ -33,9 +33,74 @@ module React = struct
     method componentWillUnmount: unit Js.meth Js.opt
   end
 
-  class type element_spec = object
-    method key: Js.js_string Js.t Js.optdef Js.readonly_prop
-    method className: Js.js_string Js.t Js.optdef Js.readonly_prop
+  module Event = struct
+    class type synthetic_event = object
+      method bubbles: bool Js.t Js.readonly_prop
+      method cancelable: bool Js.t Js.readonly_prop
+      method currentTarget: 'a Js.t Js.readonly_prop
+      method defaultPrevented: bool Js.t Js.readonly_prop
+      method eventPhase: Js.number Js.t Js.readonly_prop
+      method isTrusted: bool Js.t Js.readonly_prop
+      method nativeEvent: 'a Dom.event Js.t Js.readonly_prop
+      method preventDefault: unit -> unit Js.meth
+      method isDefaultPrevented: unit -> bool Js.t Js.meth
+      method stopPropagation: unit -> unit Js.meth
+      method isPropagationStopped: unit -> bool Js.t Js.meth
+      method target: 'a Js.t Js.readonly_prop
+      method timeStamp: Js.number Js.t Js.readonly_prop
+      method _type: Js.js_string Js.t Js.readonly_prop
+    end
+
+    class type keyboard_event = object
+      inherit synthetic_event
+
+      method altKey: bool Js.t Js.readonly_prop
+      method charCode: Js.number Js.t Js.readonly_prop
+      method ctrlKey: bool Js.t Js.readonly_prop
+      method getModifierState: Js.js_string Js.t -> bool Js.t Js.meth
+      method key: Js.js_string Js.t Js.readonly_prop
+      method keyCode: Js.number Js.t Js.readonly_prop
+      method locale: Js.js_string Js.t Js.readonly_prop
+      method location: Js.number Js.t Js.readonly_prop
+      method metaKey: bool Js.t Js.readonly_prop
+      method repeat: bool Js.t Js.readonly_prop
+      method shiftKey: bool Js.t Js.readonly_prop
+      method which: Js.number Js.t Js.readonly_prop
+    end
+  end
+
+  module Element_spec = struct
+    type t = {
+      key: string option;
+      class_name: string option;
+      on_key_down: (Event.keyboard_event Js.t -> unit) option;
+      on_key_press: (Event.keyboard_event Js.t -> unit) option;
+      on_key_up: (Event.keyboard_event Js.t -> unit) option;
+    }
+
+    let empty () = {
+      key = None;
+      class_name = None;
+      on_key_down = None;
+      on_key_press = None;
+      on_key_up = None
+    }
+
+    let to_js t =
+      let wrap_func f = match f with
+        | None -> Js.Optdef.empty
+        | Some f -> Js.Optdef.return (Js.wrap_callback f) in
+
+      object%js
+      val key = let key = Js.Optdef.option t.key in
+        Js.Optdef.map key Js.string
+      val className = let class_name = Js.Optdef.option t.class_name in
+        Js.Optdef.map class_name Js.string
+      val onKeyDown = wrap_func t.on_key_down
+      val onKeyPress = wrap_func t.on_key_press
+      val onKeyUp = wrap_func t.on_key_up
+    end
+
   end
 
   class type react = object
@@ -43,7 +108,7 @@ module React = struct
       element Js.t Js.js_array Js.t -> element Js.t Js.meth
     method createElement_stateless: ('a -> element Js.t) -> 'a Js.opt ->
       element Js.t Js.js_array Js.t -> element Js.t Js.meth
-    method createElement_tag: Js.js_string Js.t -> element_spec Js.t Js.opt ->
+    method createElement_tag: Js.js_string Js.t -> 'a Js.opt ->
       element Js.t Js.js_array Js.t -> element Js.t Js.meth
   end
 
@@ -147,7 +212,9 @@ let create_element ?props ?children component =
 
 let create_dom_element ?props ?children tag =
   let tag = Js.string tag in
-  let props = Js.Opt.option props in
+  let props = match props with
+    | None -> Js.Opt.empty
+    | Some props -> React.Element_spec.to_js props |> Js.Opt.return in
   let children = match children with
     | None -> Js.array [||]
     | Some v -> Js.array v
