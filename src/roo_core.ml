@@ -69,40 +69,6 @@ module React = struct
     end
   end
 
-  module Element_spec = struct
-    type t = {
-      key: string option;
-      class_name: string option;
-      on_key_down: (Event.keyboard_event Js.t -> unit) option;
-      on_key_press: (Event.keyboard_event Js.t -> unit) option;
-      on_key_up: (Event.keyboard_event Js.t -> unit) option;
-    }
-
-    let empty () = {
-      key = None;
-      class_name = None;
-      on_key_down = None;
-      on_key_press = None;
-      on_key_up = None
-    }
-
-    let to_js t =
-      let wrap_func f = match f with
-        | None -> Js.Optdef.empty
-        | Some f -> Js.Optdef.return (Js.wrap_callback f) in
-
-      object%js
-      val key = let key = Js.Optdef.option t.key in
-        Js.Optdef.map key Js.string
-      val className = let class_name = Js.Optdef.option t.class_name in
-        Js.Optdef.map class_name Js.string
-      val onKeyDown = wrap_func t.on_key_down
-      val onKeyPress = wrap_func t.on_key_press
-      val onKeyUp = wrap_func t.on_key_up
-    end
-
-  end
-
   class type react = object
     method createElement_stateful: ('a, _) stateful_component Js.t -> 'a Js.opt ->
       element Js.t Js.js_array Js.t -> element Js.t Js.meth
@@ -116,6 +82,40 @@ module React = struct
   let t : react Js.t = Js.Unsafe.pure_js_expr "require('react')"
 
 end
+
+module Element_spec = struct
+  type t = {
+    key: string option;
+    class_name: string option;
+    on_key_down: (React.Event.keyboard_event Js.t -> unit) option;
+    on_key_press: (React.Event.keyboard_event Js.t -> unit) option;
+    on_key_up: (React.Event.keyboard_event Js.t -> unit) option;
+  }
+
+  let empty () = {
+    key = None;
+    class_name = None;
+    on_key_down = None;
+    on_key_press = None;
+    on_key_up = None
+  }
+
+  let to_js t =
+    let wrap_func f = match f with
+      | None -> Js.Optdef.empty
+      | Some f -> Js.Optdef.return (Js.wrap_callback f) in
+
+    object%js
+      val key = let key = Js.Optdef.option t.key in
+        Js.Optdef.map key Js.string
+      val className = let class_name = Js.Optdef.option t.class_name in
+        Js.Optdef.map class_name Js.string
+      val onKeyDown = wrap_func t.on_key_down
+      val onKeyPress = wrap_func t.on_key_press
+      val onKeyUp = wrap_func t.on_key_up
+    end
+end
+
 
 (* Providing type and function for spec of component created in OCaml *)
 module Component_spec = struct
@@ -214,7 +214,7 @@ let create_dom_element ?props ?children tag =
   let tag = Js.string tag in
   let props = match props with
     | None -> Js.Opt.empty
-    | Some props -> React.Element_spec.to_js props |> Js.Opt.return in
+    | Some props -> Element_spec.to_js props |> Js.Opt.return in
   let children = match children with
     | None -> Js.array [||]
     | Some v -> Js.array v

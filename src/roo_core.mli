@@ -46,20 +46,20 @@ module React : sig
     end
   end
 
-  module Element_spec : sig
-    type t = {
-      key: string option;
-      class_name: string option;
-      on_key_down: (Event.keyboard_event Js.t -> unit) option;
-      on_key_press: (Event.keyboard_event Js.t -> unit) option;
-      on_key_up: (Event.keyboard_event Js.t -> unit) option;
-    }
-
-    val empty: unit -> t
-
-  end
-
 end
+
+module Element_spec : sig
+  type t = {
+    key: string option;
+    class_name: string option;
+    on_key_down: (React.Event.keyboard_event Js.t -> unit) option;
+    on_key_press: (React.Event.keyboard_event Js.t -> unit) option;
+    on_key_up: (React.Event.keyboard_event Js.t -> unit) option;
+  }
+
+  val empty: unit -> t
+end
+
 
 (* The module providing component spec to be able to create component via React API.
    Some of fields are optional and omit if you do not need their.
@@ -110,7 +110,7 @@ val create_element : ?props:'a -> ?children:React.element Js.t array ->
   ('a, 'b) React.component -> React.element Js.t
 (* Create element with component *)
 
-val create_dom_element: ?props:React.Element_spec.t -> ?children:React.element Js.t array ->
+val create_dom_element: ?props:Element_spec.t -> ?children:React.element Js.t array ->
   string -> React.element Js.t
 (* Create element with tag *)
 

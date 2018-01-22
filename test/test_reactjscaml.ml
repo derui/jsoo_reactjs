@@ -156,7 +156,7 @@ let _ =
 
         let index = Dom_html.getElementById "js" in
         let element = R.Dom.of_tag `span ~props:({
-            (R.Core.React.Element_spec.empty ()) with
+            (R.Core.Element_spec.empty ()) with
             class_name = Some "test_class";
           }) in
         R.dom##render element index;
@@ -178,7 +178,7 @@ let _ =
         let wait, waker = Lwt.wait () in
         let index = Dom_html.getElementById "js" in
         let element = R.Dom.of_tag `span ~props:({
-            (R.Core.React.Element_spec.empty ()) with
+            (R.Core.Element_spec.empty ()) with
             class_name = Some "test_class";
             on_key_down = Some (fun e ->
                 let key = Js.to_string e##.key in
