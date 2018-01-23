@@ -1,4 +1,4 @@
-module R = Reactjscaml.Std
+module R = Reactjscaml
 open Mocha_of_ocaml
 
 let prepare () =
