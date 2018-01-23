@@ -12,7 +12,7 @@ build: [
   "jbuilder" "build" "-p" name "-j" jobs
 ]
 depends: [
-  "jbuilder" {build & >= "1.0+beta16"}
+  "jbuilder" { >= "1.0+beta16"}
   "ocamlfind"
   "js_of_ocaml" { >= "3.0.2"}
   "js_of_ocaml-ppx" { >= "3.0.2"}
