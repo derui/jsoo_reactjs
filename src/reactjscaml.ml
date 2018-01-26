@@ -2,6 +2,7 @@ module Core = Roo_core
 module Dom = Roo_dom
 module Component = Roo_component
 module Test_util = Roo_test_util
+module Event = Reactjscaml_event
 
 (* re-binding useful functions *)
 let text = Core.text

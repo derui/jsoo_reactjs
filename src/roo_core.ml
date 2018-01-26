@@ -33,42 +33,6 @@ module React = struct
     method componentWillUnmount: unit Js.meth Js.opt
   end
 
-  module Event = struct
-    class type synthetic_event = object
-      method bubbles: bool Js.t Js.readonly_prop
-      method cancelable: bool Js.t Js.readonly_prop
-      method currentTarget: 'a Js.t Js.readonly_prop
-      method defaultPrevented: bool Js.t Js.readonly_prop
-      method eventPhase: Js.number Js.t Js.readonly_prop
-      method isTrusted: bool Js.t Js.readonly_prop
-      method nativeEvent: 'a Dom.event Js.t Js.readonly_prop
-      method preventDefault: unit -> unit Js.meth
-      method isDefaultPrevented: unit -> bool Js.t Js.meth
-      method stopPropagation: unit -> unit Js.meth
-      method isPropagationStopped: unit -> bool Js.t Js.meth
-      method target: 'a Js.t Js.readonly_prop
-      method timeStamp: Js.number Js.t Js.readonly_prop
-      method _type: Js.js_string Js.t Js.readonly_prop
-    end
-
-    class type keyboard_event = object
-      inherit synthetic_event
-
-      method altKey: bool Js.t Js.readonly_prop
-      method charCode: Js.number Js.t Js.readonly_prop
-      method ctrlKey: bool Js.t Js.readonly_prop
-      method getModifierState: Js.js_string Js.t -> bool Js.t Js.meth
-      method key: Js.js_string Js.t Js.readonly_prop
-      method keyCode: Js.number Js.t Js.readonly_prop
-      method locale: Js.js_string Js.t Js.readonly_prop
-      method location: Js.number Js.t Js.readonly_prop
-      method metaKey: bool Js.t Js.readonly_prop
-      method repeat: bool Js.t Js.readonly_prop
-      method shiftKey: bool Js.t Js.readonly_prop
-      method which: Js.number Js.t Js.readonly_prop
-    end
-  end
-
   class type react = object
     method createElement_stateful: ('a, _) stateful_component Js.t -> 'a Js.opt ->
       element Js.t Js.js_array Js.t -> element Js.t Js.meth
@@ -83,13 +47,15 @@ module React = struct
 
 end
 
+module E = Reactjscaml_event
+
 module Element_spec = struct
   type t = {
     key: string option;
     class_name: string option;
-    on_key_down: (React.Event.keyboard_event Js.t -> unit) option;
-    on_key_press: (React.Event.keyboard_event Js.t -> unit) option;
-    on_key_up: (React.Event.keyboard_event Js.t -> unit) option;
+    on_key_down: (E.keyboard_event -> unit) option;
+    on_key_press: (E.keyboard_event -> unit) option;
+    on_key_up: (E.keyboard_event -> unit) option;
   }
 
   let empty () = {

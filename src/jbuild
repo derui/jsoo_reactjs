@@ -3,5 +3,5 @@
 (library
  ((name reactjscaml)
   (public_name reactjscaml)
-  (libraries (js_of_ocaml))
+  (libraries (js_of_ocaml reactjscaml.event))
   (preprocess (pps (js_of_ocaml-ppx ppx_variants_conv)))))

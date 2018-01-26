@@ -1,0 +1,7 @@
+(jbuild_version 1)
+
+(library
+ ((name reactjscaml_event)
+  (public_name reactjscaml.event)
+  (libraries (js_of_ocaml))
+  (preprocess (pps (js_of_ocaml-ppx ppx_variants_conv)))))
