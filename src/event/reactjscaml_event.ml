@@ -16,21 +16,32 @@ class type synthetic_event = object
   method _type: Js.js_string Js.t Js.readonly_prop
 end
 
-class type _keyboard_event = object
-  inherit synthetic_event
+module Keyboard_event = struct
+  class type _t = object
+    inherit synthetic_event
 
-  method altKey: bool Js.t Js.readonly_prop
-  method charCode: Js.number Js.t Js.readonly_prop
-  method ctrlKey: bool Js.t Js.readonly_prop
-  method getModifierState: Js.js_string Js.t -> bool Js.t Js.meth
-  method key: Js.js_string Js.t Js.readonly_prop
-  method keyCode: Js.number Js.t Js.readonly_prop
-  method locale: Js.js_string Js.t Js.readonly_prop
-  method location: Js.number Js.t Js.readonly_prop
-  method metaKey: bool Js.t Js.readonly_prop
-  method repeat: bool Js.t Js.readonly_prop
-  method shiftKey: bool Js.t Js.readonly_prop
-  method which: Js.number Js.t Js.readonly_prop
+    method altKey: bool Js.t Js.readonly_prop
+    method charCode: Js.number Js.t Js.readonly_prop
+    method ctrlKey: bool Js.t Js.readonly_prop
+    method getModifierState: Js.js_string Js.t -> bool Js.t Js.meth
+    method key: Js.js_string Js.t Js.readonly_prop
+    method keyCode: Js.number Js.t Js.readonly_prop
+    method locale: Js.js_string Js.t Js.readonly_prop
+    method location: Js.number Js.t Js.readonly_prop
+    method metaKey: bool Js.t Js.readonly_prop
+    method repeat: bool Js.t Js.readonly_prop
+    method shiftKey: bool Js.t Js.readonly_prop
+    method which: Js.number Js.t Js.readonly_prop
+  end
+
+  type t = _t Js.t
+
+  type event_type = KeyDown | KeyUp | KeyPress | Unknown
+
+  let to_event_type ev =
+    match Js.to_string ev##._type with
+    | "keydown" -> KeyDown
+    | "keyup" -> KeyUp
+    | "keypress" -> KeyPress
+    | _ -> Unknown
 end
-
-type keyboard_event = _keyboard_event Js.t

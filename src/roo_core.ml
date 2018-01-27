@@ -53,9 +53,9 @@ module Element_spec = struct
   type t = {
     key: string option;
     class_name: string option;
-    on_key_down: (E.keyboard_event -> unit) option;
-    on_key_press: (E.keyboard_event -> unit) option;
-    on_key_up: (E.keyboard_event -> unit) option;
+    on_key_down: (E.Keyboard_event.t -> unit) option;
+    on_key_press: (E.Keyboard_event.t -> unit) option;
+    on_key_up: (E.Keyboard_event.t -> unit) option;
   }
 
   let empty () = {
