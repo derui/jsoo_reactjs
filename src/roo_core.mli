@@ -15,15 +15,16 @@ end
 module E = Reactjscaml_event
 
 module Element_spec : sig
-  type t = {
+  type 'a t = {
     key: string option;
     class_name: string option;
     on_key_down: (E.Keyboard_event.t -> unit) option;
     on_key_press: (E.Keyboard_event.t -> unit) option;
     on_key_up: (E.Keyboard_event.t -> unit) option;
+    others: (< .. > as 'a) Js.t option;
   }
 
-  val empty: unit -> t
+  val empty: unit -> 'a t
 end
 
 
@@ -76,7 +77,7 @@ val create_element : ?props:'a -> ?children:React.element Js.t array ->
   ('a, 'b) React.component -> React.element Js.t
 (* Create element with component *)
 
-val create_dom_element: ?props:Element_spec.t -> ?children:React.element Js.t array ->
+val create_dom_element: ?props:'a Element_spec.t -> ?children:React.element Js.t array ->
   string -> React.element Js.t
 (* Create element with tag *)
 

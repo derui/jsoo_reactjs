@@ -33,7 +33,7 @@ end
 
 module Make_stateful(P:Prop)(S:State) : Stateful
   with type props = P.t
-and type state = S.t = struct
+   and type state = S.t = struct
   type props = P.t
   type state = S.t
   type spec = (props, state) C.Component_spec.t

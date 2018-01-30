@@ -50,12 +50,13 @@ end
 module E = Reactjscaml_event
 
 module Element_spec = struct
-  type t = {
+  type 'a t = {
     key: string option;
     class_name: string option;
     on_key_down: (E.Keyboard_event.t -> unit) option;
     on_key_press: (E.Keyboard_event.t -> unit) option;
     on_key_up: (E.Keyboard_event.t -> unit) option;
+    others: (< .. > as 'a) Js.t option;
   }
 
   let empty () = {
@@ -63,7 +64,8 @@ module Element_spec = struct
     class_name = None;
     on_key_down = None;
     on_key_press = None;
-    on_key_up = None
+    on_key_up = None;
+    others = None;
   }
 
   let to_js t =
@@ -79,6 +81,7 @@ module Element_spec = struct
       val onKeyDown = wrap_func t.on_key_down
       val onKeyPress = wrap_func t.on_key_press
       val onKeyUp = wrap_func t.on_key_up
+      val others = Js.Optdef.option t.others
     end
 end
 
@@ -176,11 +179,39 @@ let create_element ?props ?children component =
   | React.Stateful component -> React.t##createElement_stateful component props children
   | React.Stateless component -> React.t##createElement_stateless component props children
 
+
+module StringSet = Set.Make(struct
+    type t = string
+    let compare = Pervasives.compare
+  end)
+
+let merge_other_keys js =
+  match Js.Optdef.to_option js##.others with
+  | None -> js
+  | Some others -> begin
+      let merge_keys = Js.object_keys others |> Js.to_array |> Array.map Js.to_string
+                       |> Array.to_list
+      and defined_props = Js.object_keys js |> Js.to_array |> Array.map Js.to_string
+                          |> Array.to_list |> List.filter (fun v -> v <> "others") in
+      let merge_key_set = StringSet.of_list merge_keys
+      and defined_prop_set = StringSet.of_list defined_props in
+      let diff_keys = StringSet.(diff merge_key_set defined_prop_set |> elements) in
+      let diff_keys = List.map Js.string diff_keys |> Array.of_list in
+
+      Array.iter (fun key ->
+          let v = Js.Unsafe.get others key in
+          Js.Unsafe.set js key v
+        ) diff_keys;
+      js
+    end
+
 let create_dom_element ?props ?children tag =
   let tag = Js.string tag in
   let props = match props with
     | None -> Js.Opt.empty
-    | Some props -> Element_spec.to_js props |> Js.Opt.return in
+    | Some props -> let js = Element_spec.to_js props in
+      let js = merge_other_keys js in
+      Js.Opt.return js in
   let children = match children with
     | None -> Js.array [||]
     | Some v -> Js.array v

@@ -201,4 +201,31 @@ let _ =
             Lwt_js.sleep 0.1
           ) >>= (fun () -> wait)
       );
+
+    "can create element with undeclared properties" >:- (fun () ->
+        prepare ();
+
+        let index = Dom_html.getElementById "js" in
+        let element = R.Dom.of_tag `span ~props:({
+            (R.Core.Element_spec.empty ()) with
+            class_name = Some "test_class";
+            others = Some (object%js
+              val tabIndex = "0"
+            end)
+          }) in
+        R.dom##render element index;
+
+        let open Lwt.Infix in
+        Lwt_js.sleep 0.0 >>= (fun () ->
+            let selector = Js.string "test_class" in
+            let dom = Dom_html.document##getElementsByClassName selector in
+            let cls = dom##item 0 in
+            let cls = Js.Opt.get cls (fun () -> failwith "Can not find element") in
+            let attr = cls##.attributes##getNamedItem (Js.string "tabIndex") in
+            let attr = match Js.Opt.to_option attr with
+              | None -> failwith ""
+              | Some attr -> Js.to_string attr##.value in
+            Lwt.return @@ assert_ok ("0" = attr)
+          )
+      );
   ];
