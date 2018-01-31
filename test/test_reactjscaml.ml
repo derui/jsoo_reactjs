@@ -228,4 +228,27 @@ let _ =
             Lwt.return @@ assert_ok ("0" = attr)
           )
       );
+    "should not override declared properties from in others property" >:- (fun () ->
+        prepare ();
+
+        let index = Dom_html.getElementById "js" in
+        let element = R.Dom.of_tag `span ~props:({
+            (R.Core.Element_spec.empty ()) with
+            class_name = Some "test_class";
+            others = Some (object%js
+              val className = "override"
+            end)
+          }) in
+        R.dom##render element index;
+
+        let open Lwt.Infix in
+        Lwt_js.sleep 0.0 >>= (fun () ->
+            let selector = Js.string "test_class" in
+            let dom = Dom_html.document##getElementsByClassName selector in
+            let cls = dom##item 0 in
+            let cls = Js.Opt.get cls (fun () -> failwith "Can not find element") in
+            let cls = cls##.className in
+            Lwt.return @@ assert_eq (Js.string "test_class") cls
+          )
+      );
   ];
