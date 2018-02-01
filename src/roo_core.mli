@@ -73,11 +73,11 @@ val create_stateful_component : ('p, 's) Component_spec.t -> ('p, 's) React.comp
 val create_stateless_component : ('p -> React.element Js.t) -> ('p, unit) React.component
 (* Create stateless component with renderer *)
 
-val create_element : ?props:'a -> ?children:React.element Js.t array ->
-  ('a, 'b) React.component -> React.element Js.t
+val create_element : ?key:string -> ?props:(< .. > as 'a) Js.t -> ?children:React.element Js.t array ->
+  ('a Js.t, 'b) React.component -> React.element Js.t
 (* Create element with component *)
 
-val create_dom_element: ?props:'a Element_spec.t -> ?children:React.element Js.t array ->
+val create_dom_element: ?key:string -> ?props:'a Element_spec.t -> ?children:React.element Js.t array ->
   string -> React.element Js.t
 (* Create element with tag *)
 

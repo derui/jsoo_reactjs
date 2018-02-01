@@ -4,6 +4,15 @@ module Helper = struct
       | None -> None
       | Some v -> Some (f v)
   end
+
+  module Js_object = struct
+    let assign : (< .. > as 'a) Js.t -> (< .. > as 'b) Js.t -> (< .. > as 'c) Js.t = fun dest source ->
+      Js.Unsafe.(meth_call (global##._Object) "assign" [|inject dest;inject source|])
+
+    let copy : (< .. > as 'a) Js.t -> 'a Js.t = fun obj ->
+      let newobj = Js.Unsafe.(meth_call global##._Object "create" [|inject Js.null|]) in
+      assign newobj obj
+  end
 end
 
 (* module that contains low-level bindings for Reactjs *)
@@ -169,8 +178,20 @@ let create_stateless_component : ('p -> React.element Js.t) ->
   React.Stateless spec
 
 (* alias function for React.createElement *)
-let create_element ?props ?children component =
-  let props = Js.Opt.option props in
+let create_element : ?key:string -> ?props:(< .. > as 'a) Js.t -> ?children:React.element Js.t array ->
+  ('a Js.t, 'b) React.component -> React.element Js.t = fun ?key ?props ?children component ->
+  let open Helper.Option in
+  let common_props = object%js
+    val key = let key = Js.Optdef.option key in Js.Optdef.map key Js.string
+  end in
+  let props = match props with
+    | None ->
+      (* Forcely convert type to send key prop to React without type error *)
+      Js.Opt.return (Js.Unsafe.coerce common_props : 'a Js.t)
+    | Some props ->
+      let copied_props = Helper.Js_object.copy props in
+      Helper.Js_object.assign copied_props common_props |> Js.Opt.return
+  in
   let children = match children with
     | None -> Js.array [||]
     | Some v -> Js.array v
@@ -205,13 +226,21 @@ let merge_other_keys js =
       js
     end
 
-let create_dom_element ?props ?children tag =
+let create_dom_element ?key ?props ?children tag =
   let tag = Js.string tag in
+  let common_props =
+    object%js
+      val key = let key = Js.Optdef.option key in Js.Optdef.map key Js.string
+    end
+  in
   let props = match props with
-    | None -> Js.Opt.empty
+    | None -> Js.Opt.return common_props
     | Some props -> let js = Element_spec.to_js props in
       let js = merge_other_keys js in
-      Js.Opt.return js in
+      let copied_props = Helper.Js_object.copy js in
+      Helper.Js_object.assign copied_props common_props
+      |> Js.Opt.return
+  in
   let children = match children with
     | None -> Js.array [||]
     | Some v -> Js.array v
