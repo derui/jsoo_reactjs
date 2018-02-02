@@ -13,7 +13,6 @@ build: [
 ]
 depends: [
   "jbuilder" { >= "1.0+beta16"}
-  "ocamlfind"
   "js_of_ocaml" { >= "3.0.2"}
   "js_of_ocaml-ppx" { >= "3.0.2"}
   "ppx_variants_conv" { >= "v0.10.0"}
