@@ -223,6 +223,7 @@ let merge_other_keys js =
           let v = Js.Unsafe.get others key in
           Js.Unsafe.set js key v
         ) diff_keys;
+      Js.Unsafe.delete js (Js.string "others");
       js
     end
 

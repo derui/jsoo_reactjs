@@ -225,7 +225,8 @@ let _ =
             let attr = match Js.Opt.to_option attr with
               | None -> failwith ""
               | Some attr -> Js.to_string attr##.value in
-            Lwt.return @@ assert_ok ("0" = attr)
+            let others = cls##.attributes##getNamedItem (Js.string "others") in
+            Lwt.return @@ assert_ok ("0" = attr && not (Js.Opt.test others))
           )
       );
 
