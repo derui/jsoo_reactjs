@@ -68,7 +68,7 @@ module Element_spec = struct
     others: (< .. > as 'a) Js.t option;
   }
 
-  let empty () = {
+  let empty = {
     key = None;
     class_name = None;
     on_key_down = None;

@@ -24,7 +24,7 @@ module Element_spec : sig
     others: (< .. > as 'a) Js.t option;
   }
 
-  val empty: unit -> 'a t
+  val empty: 'a t
 end
 
 
