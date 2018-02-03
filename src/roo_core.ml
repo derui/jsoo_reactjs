@@ -131,16 +131,16 @@ module Component_spec = struct
       val render = Js.wrap_meth_callback spec.render
       val shouldComponentUpdate = Js.Opt.option @@ (
           spec.should_component_update >|=
-          fun v -> Js.wrap_meth_callback @@ fun (this, props, state) -> v this props state)
+          fun v -> Js.wrap_meth_callback @@ fun this props state -> v this props state)
       val componentWillUpdate = Js.Opt.option @@ (
           spec.component_will_update >|=
-          fun v -> Js.wrap_meth_callback @@ fun (this, props, state) -> v this props state)
+          fun v -> Js.wrap_meth_callback @@ fun this props state -> v this props state)
       val componentDidUpdate = Js.Opt.option @@ (
           spec.component_did_update >|=
-          fun v -> Js.wrap_meth_callback @@ fun (this, props, state) -> v this props state)
+          fun v -> Js.wrap_meth_callback @@ fun this props state -> v this props state)
       val componentWillReceiveProps = Js.Opt.option @@ (
           spec.component_will_receive_props >|=
-          fun v -> Js.wrap_meth_callback @@ fun (this, props) -> v this props)
+          fun v -> Js.wrap_meth_callback @@ fun this props -> v this props)
 
       val componentWillMount = Js.Opt.option @@ (spec.component_will_mount >|= Js.wrap_meth_callback)
       val componentWillUnmount = Js.Opt.option @@ (spec.component_will_unmount >|= Js.wrap_meth_callback)
