@@ -73,7 +73,7 @@ let react_create_class_raw = {|
           return shouldComponentUpdate;
         }(function (nextProps, nextState) {
           if (spec.shouldComponentUpdate) {
-            return shouldComponentUpdate.call(this, nextProps, nextState);
+            return spec.shouldComponentUpdate.call(this, nextProps, nextState);
           }
           return true;
         })
