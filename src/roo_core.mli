@@ -33,48 +33,38 @@ end
 *)
 module Component_spec : sig
   type ('props, 'state) t = {
-    initialize : (('props, 'state) React.stateful_component Js.t -> unit) option;
-    render : ('props, 'state) React.stateful_component Js.t -> React.element Js.t;
+    initialize : (('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit) option;
+    render : ('props Js.t, 'state Js.t) React.stateful_component Js.t -> React.element Js.t;
     should_component_update :
-      (('props, 'state) React.stateful_component Js.t -> 'props -> 'state -> bool)
+      (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> bool)
         option;
     component_will_receive_props :
-      (('props, 'state) React.stateful_component Js.t -> 'props -> bool) option;
+      (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> bool) option;
     component_will_mount :
-      (('props, 'state) React.stateful_component Js.t -> unit) option;
+      (('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit) option;
     component_will_unmount :
-      (('props, 'state) React.stateful_component Js.t -> unit) option;
+      (('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit) option;
     component_did_mount :
-      (('props, 'state) React.stateful_component Js.t -> unit) option;
+      (('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit) option;
     component_will_update :
-      (('props, 'state) React.stateful_component Js.t -> 'props -> 'state -> bool)
+      (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> bool)
         option;
     component_did_update :
-      (('props, 'state) React.stateful_component Js.t -> 'props -> 'state -> bool)
+      (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> bool)
         option;
   }
 
   val empty: ('props, 'state) t
 end
 
-(* The module providing ReactDOM API as easy as possible. *)
-module Dom : sig
-  class type dom =
-    object
-      method render : React.element Js.t -> Dom_html.element Js.t -> unit Js.meth
-      method unmountComponentAtNode : Dom_html.element Js.t -> unit Js.meth
-    end
-  val t : dom Js.t
-end
-
 val create_stateful_component : ('p, 's) Component_spec.t -> ('p, 's) React.component
 (* Create stateful component with spec *)
 
-val create_stateless_component : ('p -> React.element Js.t) -> ('p, unit) React.component
+val create_stateless_component : ('p Js.t -> React.element Js.t) -> ('p, unit) React.component
 (* Create stateless component with renderer *)
 
 val create_element : ?key:string -> ?props:(< .. > as 'a) Js.t -> ?children:React.element Js.t array ->
-  ('a Js.t, 'b) React.component -> React.element Js.t
+  ('a, 'b) React.component -> React.element Js.t
 (* Create element with component *)
 
 val create_dom_element: ?key:string -> ?props:'a Element_spec.t -> ?children:React.element Js.t array ->
@@ -83,6 +73,3 @@ val create_dom_element: ?key:string -> ?props:'a Element_spec.t -> ?children:Rea
 
 val text: string -> React.element Js.t
 (* Create element for text node *)
-
-val dom : Dom.dom Js.t
-(* Re-binding for convinience *)

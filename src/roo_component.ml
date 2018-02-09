@@ -11,14 +11,14 @@ end
 
 module type Stateless = sig
   type props
-  type renderer = props -> C.React.element Js.t
+  type renderer = props Js.t -> C.React.element Js.t
 
   val make: renderer -> (props, unit) C.React.component
 end
 
 module Make_stateless(P:Prop) : Stateless with type props = P.t = struct
   type props = P.t
-  type renderer = P.t -> C.React.element Js.t
+  type renderer = P.t Js.t -> C.React.element Js.t
 
   let make renderer = C.create_stateless_component renderer
 end

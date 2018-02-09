@@ -7,4 +7,4 @@ module Event = Reactjscaml_event
 (* re-binding useful functions *)
 let text = Core.text
 let element = Core.create_element
-let dom = Core.dom
+let dom = Dom.dom

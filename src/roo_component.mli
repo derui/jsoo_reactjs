@@ -24,7 +24,7 @@ end
 
 module type Stateless = sig
   type props
-  type renderer = props -> Roo_core.React.element Js.t
+  type renderer = props Js.t -> Roo_core.React.element Js.t
   val make : renderer -> (props, unit) Roo_core.React.component
 end
 

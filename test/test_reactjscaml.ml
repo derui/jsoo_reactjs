@@ -36,10 +36,9 @@ let _ =
     "can create original stateless component" >:- (fun () ->
         prepare ();
         let module M = R.Component.Make_stateless(struct
-            class type _t = object
+            class type t = object
               method name: Js.js_string Js.t Js.readonly_prop
             end
-            type t = _t Js.t
           end) in
         let component = M.make (fun props ->
             R.Dom.of_tag `span ~children:[|
@@ -63,16 +62,14 @@ let _ =
     "can create original stateful component" >:- (fun () ->
         prepare ();
         let module M = R.Component.Make_stateful(struct
-            class type _t = object
+            class type t = object
               method name: Js.js_string Js.t Js.readonly_prop
             end
-            type t = _t Js.t
           end)
             (struct
-              class type _t = object
+              class type t = object
                 method real_name: Js.js_string Js.t Js.prop
               end
-              type t = _t Js.t
             end) in
         let component = M.make { R.Core.Component_spec.empty with
                                  R.Core.Component_spec.initialize = Some (fun this ->
@@ -102,16 +99,14 @@ let _ =
         prepare ();
 
         let module M = R.Component.Make_stateful(struct
-            class type _t = object
+            class type t = object
               method name: Js.js_string Js.t Js.readonly_prop
             end
-            type t = _t Js.t
           end)
             (struct
-              class type _t = object
+              class type t = object
                 method events: Js.js_string Js.t Js.js_array Js.t Js.prop
               end
-              type t = _t Js.t
             end) in
 
         let component = M.make { R.Core.Component_spec.empty with
@@ -283,10 +278,9 @@ let _ =
     "can specify key to original components in children" >:- (fun () ->
         prepare ();
         let module M = R.Component.Make_stateless(struct
-            class type _t = object
+            class type t = object
               method name: Js.js_string Js.t Js.readonly_prop
             end
-            type t = _t Js.t
           end) in
         let component = M.make (fun props ->
             R.Dom.of_tag `span ~children:[|

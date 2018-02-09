@@ -27,18 +27,18 @@ module React = struct
   end
 
   type ('props, 'state) component =
-    | Stateful of ('props, 'state) stateful_component Js.t
-    | Stateless of ('props -> element Js.t)
+    | Stateful of ('props Js.t, 'state Js.t) stateful_component Js.t
+    | Stateless of ('props Js.t -> element Js.t)
 
   class type ['props, 'state] js_component_spec = object
-    method constructor: ('props, 'state) stateful_component Js.t -> unit Js.meth Js.opt
+    method constructor: ('props Js.t, 'state Js.t) stateful_component Js.t -> unit Js.meth Js.opt
     method componentWillMount: unit Js.meth Js.opt
     method componentDidMount: unit Js.meth Js.opt
     method render: element Js.meth
-    method componentWillReceiveProps: 'props -> unit Js.meth Js.opt
-    method shouldComponentUpdate: 'props -> 'state -> bool Js.t Js.meth Js.opt
-    method componentWillUpdate: 'props -> 'state -> unit Js.meth Js.opt
-    method componentDidUpdate: 'props -> 'state -> unit Js.meth Js.opt
+    method componentWillReceiveProps: 'props Js.t -> unit Js.meth Js.opt
+    method shouldComponentUpdate: 'props Js.t -> 'state Js.t -> bool Js.t Js.meth Js.opt
+    method componentWillUpdate: 'props Js.t -> 'state Js.t -> unit Js.meth Js.opt
+    method componentDidUpdate: 'props Js.t -> 'state Js.t -> unit Js.meth Js.opt
     method componentWillUnmount: unit Js.meth Js.opt
   end
 
@@ -98,18 +98,18 @@ end
 (* Providing type and function for spec of component created in OCaml *)
 module Component_spec = struct
   type ('props, 'state) t = {
-    initialize: (('props, 'state) React.stateful_component Js.t -> unit) option;
-    render: ('props, 'state) React.stateful_component Js.t -> React.element Js.t;
+    initialize: (('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit) option;
+    render: ('props Js.t, 'state Js.t) React.stateful_component Js.t -> React.element Js.t;
     should_component_update:
-      (('props, 'state) React.stateful_component Js.t -> 'props -> 'state -> bool) option;
-    component_will_receive_props: (('props, 'state) React.stateful_component Js.t -> 'props -> bool) option;
-    component_will_mount: (('props, 'state) React.stateful_component Js.t -> unit) option;
-    component_will_unmount: (('props, 'state) React.stateful_component Js.t -> unit) option;
-    component_did_mount: (('props, 'state) React.stateful_component Js.t -> unit) option;
+      (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> bool) option;
+    component_will_receive_props: (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> bool) option;
+    component_will_mount: (('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit) option;
+    component_will_unmount: (('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit) option;
+    component_did_mount: (('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit) option;
     component_will_update:
-      (('props, 'state) React.stateful_component Js.t -> 'props -> 'state -> bool) option;
+      (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> bool) option;
     component_did_update:
-      (('props, 'state) React.stateful_component Js.t -> 'props -> 'state -> bool) option;
+      (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> bool) option;
   }
 
   let empty = {
@@ -139,18 +139,6 @@ module Component_spec = struct
     end
 end
 
-(* Binding for react-dom module *)
-module Dom = struct
-
-  (* Not provide findDOMNode function now. *)
-  class type dom = object
-    method render: React.element Js.t -> Dom_html.element Js.t -> unit Js.meth
-    method unmountComponentAtNode: Dom_html.element Js.t -> unit Js.meth
-  end
-
-  let t : dom Js.t = Js.Unsafe.pure_js_expr "require('react-dom')"
-end
-
 let _create_class_of_spec =
   let f = Js.Unsafe.js_expr Roo_raw.react_create_class_raw in
   Js.Unsafe.fun_call f [||]
@@ -161,7 +149,7 @@ let create_stateful_component : ('p, 's) Component_spec.t ->
   let spec = Component_spec.to_js_spec spec in
   React.Stateful (Js.Unsafe.(fun_call _create_class_of_spec [|inject React.t; inject spec|]))
 
-let create_stateless_component : ('p -> React.element Js.t) ->
+let create_stateless_component : ('p Js.t -> React.element Js.t) ->
   ('p, unit) React.component = fun spec ->
   (* NOTE: ReactJS with functional component will check passed function to
      ReactDOM.render, so we can not wrap a ocaml function that will call in React.
@@ -170,7 +158,7 @@ let create_stateless_component : ('p -> React.element Js.t) ->
 
 (* alias function for React.createElement *)
 let create_element : ?key:string -> ?props:(< .. > as 'a) Js.t -> ?children:React.element Js.t array ->
-  ('a Js.t, 'b) React.component -> React.element Js.t = fun ?key ?props ?children component ->
+  ('a, 'b) React.component -> React.element Js.t = fun ?key ?props ?children component ->
   let open Helper.Option in
   let common_props = object%js
     val key = let key = Js.Optdef.option key in Js.Optdef.map key Js.string
@@ -240,6 +228,3 @@ let create_dom_element ?key ?props ?children tag =
   React.t##createElement_tag tag props children
 
 let text v = Obj.magic @@ Js.string v
-
-(* Export ReactDOM API *)
-let dom = Dom.t
