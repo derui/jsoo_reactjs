@@ -57,19 +57,22 @@ module Component_spec : sig
   val empty: ('props, 'state) t
 end
 
+(** Create stateful component with spec *)
 val create_stateful_component : ('p, 's) Component_spec.t -> ('p, 's) React.component
-(* Create stateful component with spec *)
 
+(** Create stateless component with renderer *)
 val create_stateless_component : ('p Js.t -> React.element Js.t) -> ('p, unit) React.component
-(* Create stateless component with renderer *)
 
+(** Create element with component *)
 val create_element : ?key:string -> ?props:(< .. > as 'a) Js.t -> ?children:React.element Js.t array ->
   ('a, 'b) React.component -> React.element Js.t
-(* Create element with component *)
 
+(** Create element with tag *)
 val create_dom_element: ?key:string -> ?props:'a Element_spec.t -> ?children:React.element Js.t array ->
   string -> React.element Js.t
-(* Create element with tag *)
 
+(** Create Fragment component to wrap empty dom *)
+val fragment: ?key:string -> React.element Js.t array -> React.element Js.t
+
+(** Create element for text node *)
 val text: string -> React.element Js.t
-(* Create element for text node *)

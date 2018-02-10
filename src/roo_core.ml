@@ -42,6 +42,14 @@ module React = struct
     method componentWillUnmount: unit Js.meth Js.opt
   end
 
+  module Fragment = struct
+    class type props = object
+      method key: Js.js_string Js.t Js.optdef Js.readonly_prop
+    end
+
+    type t = (props Js.t, unit) stateful_component
+  end
+
   class type react = object
     method createElement_stateful: ('a, _) stateful_component Js.t -> 'a Js.opt ->
       element Js.t Js.js_array Js.t -> element Js.t Js.meth
@@ -49,6 +57,10 @@ module React = struct
       element Js.t Js.js_array Js.t -> element Js.t Js.meth
     method createElement_tag: Js.js_string Js.t -> 'a Js.opt ->
       element Js.t Js.js_array Js.t -> element Js.t Js.meth
+    method createElement_component: Js.js_string Js.t -> 'a Js.opt ->
+      element Js.t Js.js_array Js.t -> element Js.t Js.meth
+
+    method _Fragment: Fragment.t Js.t Js.readonly_prop
   end
 
   (* create component from spec. *)
@@ -226,5 +238,14 @@ let create_dom_element ?key ?props ?children tag =
     | Some v -> Js.array v
   in
   React.t##createElement_tag tag props children
+
+let fragment ?key children =
+  let common_props =
+    object%js
+      val key = let key = Js.Optdef.option key in Js.Optdef.map key Js.string
+    end
+  in
+  let children = Js.array children in
+  React.t##createElement_stateful React.t##._Fragment (Js.Opt.return common_props) children
 
 let text v = Obj.magic @@ Js.string v

@@ -310,4 +310,41 @@ let _ =
             Lwt.return @@ assert_eq 3 nodes
           )
       );
+    "can wrap elements by fragment component" >:- (fun () ->
+        prepare ();
+        let module M = R.Component.Make_stateless(struct
+            class type t = object
+              method name: Js.js_string Js.t Js.readonly_prop
+            end
+          end) in
+        let component = M.make (fun props ->
+            R.Core.fragment [|
+              R.text @@ Js.to_string props##.name;
+              R.text @@ Js.to_string props##.name;
+              R.text @@ Js.to_string props##.name;
+            |]
+          ) in
+
+        let index = Dom_html.getElementById "js" in
+        let element = R.Dom.of_tag `div ~props:({
+            R.Core.Element_spec.empty with
+            class_name = Some "test_class";
+          })
+            ~children:[|
+              R.element ~key:"foo" ~props:(object%js val name = Js.string "foo" end) component;
+              R.element ~key:"bar" ~props:(object%js val name = Js.string "bar" end) component;
+              R.element ~key:"baz" ~props:(object%js val name = Js.string "baz" end) component;
+            |]in
+        R.dom##render element index;
+
+        let open Lwt.Infix in
+        Lwt_js.sleep 0.0 >>= (fun () ->
+            let selector = Js.string "test_class" in
+            let dom = Dom_html.document##getElementsByClassName selector in
+            let cls = dom##item 0 in
+            let cls = Js.Opt.get cls (fun () -> failwith "Can not find element") in
+            let nodes = cls##.childNodes##.length in
+            Lwt.return @@ assert_eq 9 nodes
+          )
+      );
   ];
