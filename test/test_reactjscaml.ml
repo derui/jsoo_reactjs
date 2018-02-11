@@ -71,16 +71,17 @@ let _ =
                 method real_name: Js.js_string Js.t Js.prop
               end
             end) in
-        let component = M.make { R.Core.Component_spec.empty with
-                                 R.Core.Component_spec.initialize = Some (fun this ->
-                                     let name = Js.to_string this##.props##.name in
-                                     this##.state := object%js
-                                       val mutable real_name = Js.string ("Hello " ^ name)
-                                     end);
-                                 render = (fun this ->
-                                     R.Dom.of_tag `span ~children:[|R.text @@ Js.to_string this##.state##.real_name|]
-                                   );
-                               } in
+        let component = M.make R.Core.Component_spec.({
+            empty with
+            initialize = Some (fun this props ->
+                let name = Js.to_string props##.name in
+                this##.state := object%js
+                  val mutable real_name = Js.string ("Hello " ^ name)
+                end);
+            render = (fun this ->
+                R.Dom.of_tag `span ~children:[|R.text @@ Js.to_string this##.state##.real_name|]
+              );
+          }) in
         let index = Dom_html.getElementById "js" in
         let element = R.element component ~props:(object%js
             val name = Js.string "bar"
@@ -109,26 +110,27 @@ let _ =
               end
             end) in
 
-        let component = M.make { R.Core.Component_spec.empty with
-                                 R.Core.Component_spec.initialize = Some (fun this ->
-                                     let name = this##.props##.name in
-                                     this##.state := object%js
-                                       val mutable events = Js.array [|name|]
-                                     end);
-                                 render = (fun this ->
-                                     let children = Js.to_array this##.state##.events in
-                                     let children = Array.map (fun v ->
-                                         let v = (Js.to_string v) ^ "\n" in R.text v
-                                       ) children in
-                                     R.Dom.of_tag `span ~children
-                                   );
-                                 component_did_mount = Some (fun this ->
-                                     let event = Js.array [|Js.string "did_mount"|] in
-                                     this##setState (object%js
-                                       val mutable events = this##.state##.events##concat event
-                                     end)
-                                   );
-                               } in
+        let component = M.make R.Core.Component_spec.({
+            empty with
+            initialize = Some (fun this props ->
+                let name = props##.name in
+                this##.state := object%js
+                  val mutable events = Js.array [|name|]
+                end);
+            render = (fun this ->
+                let children = Js.to_array this##.state##.events in
+                let children = Array.map (fun v ->
+                    let v = (Js.to_string v) ^ "\n" in R.text v
+                  ) children in
+                R.Dom.of_tag `span ~children
+              );
+            component_did_mount = Some (fun this ->
+                let event = Js.array [|Js.string "did_mount"|] in
+                this##setState (object%js
+                  val mutable events = this##.state##.events##concat event
+                end)
+              );
+          }) in
         let index = Dom_html.getElementById "js" in
         let element = R.element component ~props:(object%js
             val name = Js.string "bar"
@@ -189,10 +191,10 @@ let _ =
             let cls = Js.Opt.get cls (fun () -> failwith "Can not find element") in
             let module T = R.Test_util in
             T.instance##._Simulate##keyDown cls
-                (Js.Optdef.return (object%js
-                   val key = Js.string "w"
-                 end)
-                );
+              (Js.Optdef.return (object%js
+                 val key = Js.string "w"
+               end)
+              );
             Lwt_js.sleep 0.1
           ) >>= (fun () -> wait)
       );
@@ -205,8 +207,8 @@ let _ =
             R.Core.Element_spec.empty with
             class_name = Some "test_class";
             others = Some (object%js
-              val tabIndex = "0"
-            end)
+                val tabIndex = "0"
+              end)
           }) in
         R.dom##render element index;
 
@@ -233,8 +235,8 @@ let _ =
             R.Core.Element_spec.empty with
             class_name = Some "test_class";
             others = Some (object%js
-              val className = "override"
-            end)
+                val className = "override"
+              end)
           }) in
         R.dom##render element index;
 
@@ -345,6 +347,54 @@ let _ =
             let cls = Js.Opt.get cls (fun () -> failwith "Can not find element") in
             let nodes = cls##.childNodes##.length in
             Lwt.return @@ assert_eq 9 nodes
+          )
+      );
+    "can fetch reference of DOM element" >:- (fun () ->
+        prepare ();
+        let module M = R.Component.Make_stateful(struct
+            class type t = object
+              method name: Js.js_string Js.t Js.readonly_prop
+            end
+          end)(struct
+            class type t = object
+              method node: Dom_html.element Js.t Js.readonly_prop
+            end
+          end) in
+
+        let component = M.make R.Core.Component_spec.({
+            empty with
+            initialize = Some (fun this props -> this##.nodes := Jstable.create ());
+            component_did_mount = Some (fun this ->
+                let open R.Ref_table in
+                match find this##.nodes "node" with
+                | None -> ()
+                | Some e -> begin
+                    e##setAttribute (Js.string "data-test") (Js.string "value");
+                    e##setAttribute (Js.string "id") (Js.string "value");
+                  end
+              );
+            render = (fun this ->
+                let props = this##.props in
+                R.Dom.of_tag `span ~_ref:(fun e ->
+                    R.Ref_table.(add this##.nodes ~key:"node" ~value:e);
+                  )
+                  ~children:[|
+                    R.text @@ Js.to_string props##.name
+                  |]
+              )
+          }) in
+        let index = Dom_html.getElementById "js" in
+        let element = R.element component ~props:(object%js
+            val name = Js.string "bar"
+          end) in
+        R.dom##render element index;
+
+        let open Lwt.Infix in
+        Lwt_js.sleep 0.0 >>= (fun () ->
+            let index = Dom_html.getElementById "value" in
+            let option () = Js.string "" in
+            let text = Js.Opt.get (index##getAttribute (Js.string "data-test")) option |> Js.to_string in
+            Lwt.return @@ assert_ok ("value" = text)
           )
       );
   ];

@@ -24,6 +24,7 @@ module React = struct
     method props: 'props Js.readonly_prop
     method state: 'state Js.prop
     method setState: 'state -> unit Js.meth
+    method nodes : Dom_html.element Js.t Jstable.t Js.prop
   end
 
   type ('props, 'state) component =
@@ -110,7 +111,7 @@ end
 (* Providing type and function for spec of component created in OCaml *)
 module Component_spec = struct
   type ('props, 'state) t = {
-    initialize: (('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit) option;
+    initialize: (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> unit) option;
     render: ('props Js.t, 'state Js.t) React.stateful_component Js.t -> React.element Js.t;
     should_component_update:
       (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> bool) option;
@@ -218,11 +219,12 @@ let merge_other_keys js =
       js
     end
 
-let create_dom_element ?key ?props ?children tag =
+let create_dom_element ?key ?_ref ?props ?children tag =
   let tag = Js.string tag in
   let common_props =
     object%js
       val key = let key = Js.Optdef.option key in Js.Optdef.map key Js.string
+      val _ref = let _ref = Js.Optdef.option _ref in Js.Optdef.map _ref Js.wrap_callback
     end
   in
   let props = match props with

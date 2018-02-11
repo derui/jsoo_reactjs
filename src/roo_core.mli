@@ -6,6 +6,7 @@ module React : sig
       method props : 'props Js.readonly_prop
       method setState : 'state -> unit Js.meth
       method state : 'state Js.prop
+      method nodes : Dom_html.element Js.t Jstable.t Js.prop
     end
 
   type ('props, 'state) component
@@ -27,13 +28,12 @@ module Element_spec : sig
   val empty: 'a t
 end
 
-
 (* The module providing component spec to be able to create component via React API.
    Some of fields are optional and omit if you do not need their.
 *)
 module Component_spec : sig
   type ('props, 'state) t = {
-    initialize : (('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit) option;
+    initialize : (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> unit) option;
     render : ('props Js.t, 'state Js.t) React.stateful_component Js.t -> React.element Js.t;
     should_component_update :
       (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> bool)
@@ -64,11 +64,14 @@ val create_stateful_component : ('p, 's) Component_spec.t -> ('p, 's) React.comp
 val create_stateless_component : ('p Js.t -> React.element Js.t) -> ('p, unit) React.component
 
 (** Create element with component *)
-val create_element : ?key:string -> ?props:(< .. > as 'a) Js.t -> ?children:React.element Js.t array ->
+val create_element : ?key:string ->
+  ?props:(< .. > as 'a) Js.t -> ?children:React.element Js.t array ->
   ('a, 'b) React.component -> React.element Js.t
 
 (** Create element with tag *)
-val create_dom_element: ?key:string -> ?props:'a Element_spec.t -> ?children:React.element Js.t array ->
+val create_dom_element: ?key:string ->
+  ?_ref:(Dom_html.element Js.t -> unit) ->
+  ?props:'a Element_spec.t -> ?children:React.element Js.t array ->
   string -> React.element Js.t
 
 (** Create Fragment component to wrap empty dom *)

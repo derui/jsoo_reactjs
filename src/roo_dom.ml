@@ -40,5 +40,5 @@ type tags = [
   | `tfoot
 ] [@@deriving variants]
 
-let of_tag ?key ?props ?(children=[||]) tag = Core.create_dom_element
-    ?key ?props ~children @@ Variants_of_tags.to_name tag
+let of_tag ?key ?_ref ?props ?(children=[||]) tag = Core.create_dom_element
+    ?key ?_ref ?props ~children @@ Variants_of_tags.to_name tag
