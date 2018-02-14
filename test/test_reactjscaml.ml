@@ -397,4 +397,34 @@ let _ =
             Lwt.return @@ assert_ok ("value" = text)
           )
       );
+
+    "can get children in component" >:- (fun () ->
+        prepare ();
+        let module M = R.Component.Make_stateful(struct
+            class type t = object
+              method name: Js.js_string Js.t Js.readonly_prop
+            end
+          end)(struct type t = unit end) in
+
+        let component = M.make R.Core.Component_spec.({
+            empty with
+            render = (fun this ->
+                let children = this##.props_defined##.children in
+                let count = children##.length |> string_of_int in
+                R.Dom.of_tag `span ~children:[| R.text count |]
+              )
+          }) in
+        let index = Dom_html.getElementById "js" in
+        let element = R.element component ~props:(object%js
+            val name = Js.string "bar"
+          end) ~children:(Array.init 3 (fun i -> R.Dom.of_tag ~key:(string_of_int i) `span)) in
+        R.dom##render element index;
+
+        let open Lwt.Infix in
+        Lwt_js.sleep 0.0 >>= (fun () ->
+            let option () = Js.string "" in
+            let text = Js.Opt.get (index##.textContent) option |> Js.to_string in
+            Lwt.return @@ assert_ok ("3" = text)
+          )
+      );
   ];

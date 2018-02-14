@@ -1,9 +1,14 @@
 (* the module for low-level binding for React *)
 module React : sig
   type element
+  class type defined_props = object
+    method children: element Js.t Js.js_array Js.t Js.readonly_prop
+  end
+
   class type ['props, 'state] stateful_component =
     object
       method props : 'props Js.readonly_prop
+      method props_defined: defined_props Js.t Js.readonly_prop
       method setState : 'state -> unit Js.meth
       method state : 'state Js.prop
       method nodes : Dom_html.element Js.t Jstable.t Js.prop
