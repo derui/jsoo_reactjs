@@ -79,3 +79,6 @@ val fragment: ?key:string -> React.element Js.t array -> React.element Js.t
 
 (** Create element for text node *)
 val text: string -> React.element Js.t
+
+(** Create empty element when you want not to create any element. *)
+val empty: unit -> React.element Js.t

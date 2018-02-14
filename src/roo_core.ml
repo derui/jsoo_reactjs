@@ -251,3 +251,5 @@ let fragment ?key children =
   React.t##createElement_stateful React.t##._Fragment (Js.Opt.return common_props) children
 
 let text v = Obj.magic @@ Js.string v
+
+let empty () = Obj.magic @@ Js.null
