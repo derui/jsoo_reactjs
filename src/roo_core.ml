@@ -120,14 +120,14 @@ module Component_spec = struct
     render: ('props Js.t, 'state Js.t) React.stateful_component Js.t -> React.element Js.t;
     should_component_update:
       (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> bool) option;
-    component_will_receive_props: (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> bool) option;
+    component_will_receive_props: (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> unit) option;
     component_will_mount: (('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit) option;
     component_will_unmount: (('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit) option;
     component_did_mount: (('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit) option;
     component_will_update:
-      (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> bool) option;
+      (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> unit) option;
     component_did_update:
-      (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> bool) option;
+      (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> unit) option;
   }
 
   let empty = {
