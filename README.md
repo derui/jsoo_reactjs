@@ -12,19 +12,34 @@ This library provides bindings for ReactJS to use with js\_of\_ocaml.
 
    ```shell
    $ cd path_to_reactjscaml
-   $ opam pin add reactjscaml .
-   $ opam install reactjscaml
+   $ opam install .
    ```
+
+   >> NOTE: command ``opam install .`` above is only available opam version 2.0.
+
+## Usage ##
 
 1. Add reactjscaml to your project's dependency.
 
    If you already use opam, add ``depends`` follows.
 
    ```
-   "reactjscaml" {"build" }
+   "reactjscaml"
    ```
 
+1. Install npm packages that are used in this library.
+
+    ```shell
+    npm install --save-dev react react-dom react-test-renderer
+    ```
+
 ## Development ##
+
+### Installation ###
+
+```shell
+$ npm install
+```
 
 ### Build ###
 
