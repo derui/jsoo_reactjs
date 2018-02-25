@@ -4,7 +4,8 @@
   "scripts": {
     "bundle:test": "webpack",
     "run:test": "karma start --single-run --browsers ChromeHeadlessNoSandbox karma.conf.js",
-    "test": "npm-run-all -s bundle:test run:test"
+    "run:mocha": "mocha --colors _build/default/test/test_test_util.bc.js",
+    "test": "npm-run-all -s bundle:test run:test run:mocha"
   },
   "keywords": [],
   "license": "MIT",
@@ -19,6 +20,8 @@
     "puppeteer": "^0.13.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "react-test-renderer": "^16.2.0",
+    "snap-shot-it": "^4.0.1",
     "webpack": "^3.10.0"
   },
   "dependencies": {}

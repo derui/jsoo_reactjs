@@ -10,12 +10,14 @@ dev-repo: "git+https://github.com/derui/reactjscaml"
 tags: []
 build: [
   ["jbuilder" "build" "-p" name "-j" jobs]
+  ["jbuilder" "runt" "-p" name ] {test}
 ]
 depends: [
   "jbuilder" {build & >= "1.0+beta16"}
   "js_of_ocaml" { >= "3.0.2"}
   "js_of_ocaml-ppx" { >= "3.0.2"}
   "ppx_variants_conv" { >= "v0.10.0"}
-  "mocha_of_ocaml" {"test"}
+  "mocha_of_ocaml" {test}
+  "snap-shot-it_of_ocaml" {test}
 ]
 available: ["ocaml" >= "4.05.0"]
