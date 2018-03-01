@@ -1,4 +1,4 @@
-module R = Reactjscaml
+module R = Jsoo_reactjs
 open Mocha_of_ocaml
 
 let prepare () =
@@ -46,7 +46,7 @@ let _ =
             |]
           ) in
         let index = Dom_html.getElementById "js" in
-        let element = R.element component ~props:(object%js
+        let element = R.create_element component ~props:(object%js
             val name = Js.string "bar"
           end) in
         R.dom##render element index;
@@ -83,7 +83,7 @@ let _ =
               );
           }) in
         let index = Dom_html.getElementById "js" in
-        let element = R.element component ~props:(object%js
+        let element = R.create_element component ~props:(object%js
             val name = Js.string "bar"
           end) in
         R.dom##render element index;
@@ -132,7 +132,7 @@ let _ =
               );
           }) in
         let index = Dom_html.getElementById "js" in
-        let element = R.element component ~props:(object%js
+        let element = R.create_element component ~props:(object%js
             val name = Js.string "bar"
           end) in
         R.dom##render element index;
@@ -296,9 +296,9 @@ let _ =
             class_name = Some "test_class";
           })
             ~children:[|
-              R.element ~key:"foo" ~props:(object%js val name = Js.string "foo" end) component;
-              R.element ~key:"bar" ~props:(object%js val name = Js.string "bar" end) component;
-              R.element ~key:"baz" ~props:(object%js val name = Js.string "baz" end) component;
+              R.create_element ~key:"foo" ~props:(object%js val name = Js.string "foo" end) component;
+              R.create_element ~key:"bar" ~props:(object%js val name = Js.string "bar" end) component;
+              R.create_element ~key:"baz" ~props:(object%js val name = Js.string "baz" end) component;
             |]in
         R.dom##render element index;
 
@@ -333,9 +333,9 @@ let _ =
             class_name = Some "test_class";
           })
             ~children:[|
-              R.element ~key:"foo" ~props:(object%js val name = Js.string "foo" end) component;
-              R.element ~key:"bar" ~props:(object%js val name = Js.string "bar" end) component;
-              R.element ~key:"baz" ~props:(object%js val name = Js.string "baz" end) component;
+              R.create_element ~key:"foo" ~props:(object%js val name = Js.string "foo" end) component;
+              R.create_element ~key:"bar" ~props:(object%js val name = Js.string "bar" end) component;
+              R.create_element ~key:"baz" ~props:(object%js val name = Js.string "baz" end) component;
             |]in
         R.dom##render element index;
 
@@ -384,7 +384,7 @@ let _ =
               )
           }) in
         let index = Dom_html.getElementById "js" in
-        let element = R.element component ~props:(object%js
+        let element = R.create_element component ~props:(object%js
             val name = Js.string "bar"
           end) in
         R.dom##render element index;
@@ -415,7 +415,7 @@ let _ =
               )
           }) in
         let index = Dom_html.getElementById "js" in
-        let element = R.element component ~props:(object%js
+        let element = R.create_element component ~props:(object%js
             val name = Js.string "bar"
           end) ~children:(Array.init 3 (fun i -> R.Dom.of_tag ~key:(string_of_int i) `span)) in
         R.dom##render element index;

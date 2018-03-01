@@ -24,8 +24,8 @@ end
 
 module type Stateless = sig
   type props
-  type renderer = props Js.t -> Roo_core.React.element Js.t
-  val make : renderer -> (props, unit) Roo_core.React.component
+  type renderer = props Js.t -> Rjs_core.React.element Js.t
+  val make : renderer -> (props, unit) Rjs_core.React.component
 end
 
 module Make_stateless(P: Prop) : Stateless with type props = P.t
@@ -33,9 +33,9 @@ module Make_stateless(P: Prop) : Stateless with type props = P.t
 module type Stateful = sig
   type props
   type state
-  type spec = (props, state) Roo_core.Component_spec.t
+  type spec = (props, state) Rjs_core.Component_spec.t
 
-  val make : spec -> (props, state) Roo_core.React.component
+  val make : spec -> (props, state) Rjs_core.React.component
 end
 
 module Make_stateful(P:Prop)(S:State) : Stateful

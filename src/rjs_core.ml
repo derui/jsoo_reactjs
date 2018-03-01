@@ -74,7 +74,7 @@ module React = struct
 
 end
 
-module E = Reactjscaml_event
+module E = Jsoo_reactjs_event
 
 module Element_spec = struct
   type 'a t = {
@@ -83,6 +83,8 @@ module Element_spec = struct
     on_key_down: (E.Keyboard_event.t -> unit) option;
     on_key_press: (E.Keyboard_event.t -> unit) option;
     on_key_up: (E.Keyboard_event.t -> unit) option;
+    on_input: (E.Input_event.t -> unit) option;
+    value: string option;
     others: (< .. > as 'a) Js.t option;
   }
 
@@ -92,6 +94,8 @@ module Element_spec = struct
     on_key_down = None;
     on_key_press = None;
     on_key_up = None;
+    on_input = None;
+    value = None;
     others = None;
   }
 
@@ -108,6 +112,9 @@ module Element_spec = struct
       val onKeyDown = wrap_func t.on_key_down
       val onKeyPress = wrap_func t.on_key_press
       val onKeyUp = wrap_func t.on_key_up
+      val onInput = wrap_func t.on_input
+      val value =
+        let v = Js.Optdef.option t.value in Js.Optdef.map v Js.string
       val others = Js.Optdef.option t.others
     end
 end
@@ -158,7 +165,7 @@ module Component_spec = struct
 end
 
 let _create_class_of_spec =
-  let f = Js.Unsafe.js_expr Roo_raw.react_create_class_raw in
+  let f = Js.Unsafe.js_expr Rjs_raw.react_create_class_raw in
   Js.Unsafe.fun_call f [||]
 
 (* Create component from OCaml's component spec *)

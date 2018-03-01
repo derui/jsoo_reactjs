@@ -1,5 +1,5 @@
 class type props = object
-  method children: Roo_core.React.element Js.t Js.js_array Js.t Js.readonly_prop
+  method children: Rjs_core.React.element Js.t Js.js_array Js.t Js.readonly_prop
 end
 
 class type shallow = object
@@ -8,7 +8,7 @@ class type shallow = object
 end
 
 class type t = object
-  method render: Roo_core.React.element Js.t -> unit Js.meth
+  method render: Rjs_core.React.element Js.t -> unit Js.meth
   method getRenderOutput: shallow Js.t Js.meth
 end
 

@@ -11,7 +11,7 @@ class type synthetic_event = object
   method isDefaultPrevented:  bool Js.t Js.meth
   method stopPropagation: unit Js.meth
   method isPropagationStopped: bool Js.t Js.meth
-  method target: 'a Js.t Js.readonly_prop
+  method target: Dom_html.element Js.t Js.readonly_prop
   method timeStamp: Js.number Js.t Js.readonly_prop
   method _type: Js.js_string Js.t Js.readonly_prop
 end
@@ -44,4 +44,10 @@ module Keyboard_event = struct
     | "keyup" -> KeyUp
     | "keypress" -> KeyPress
     | _ -> Unknown
+end
+
+module Input_event = struct
+  class type t = object
+    inherit synthetic_event
+  end
 end

@@ -8,10 +8,10 @@ This library provides bindings for ReactJS to use with js\_of\_ocaml.
 
 ## Installation ##
 1. Clone this repository
-1. Add reactjscaml as pinned project
+1. Add jsoo\_reactjs as pinned project
 
    ```shell
-   $ cd path_to_reactjscaml
+   $ cd path_to_jsoo_reactjs
    $ opam install .
    ```
 
@@ -19,12 +19,12 @@ This library provides bindings for ReactJS to use with js\_of\_ocaml.
 
 ## Usage ##
 
-1. Add reactjscaml to your project's dependency.
+1. Add jsoo\_reactjs to your project's dependency.
 
    If you already use opam, add ``depends`` follows.
 
    ```
-   "reactjscaml"
+   "jsoo_reactjs"
    ```
 
 1. Install npm packages that are used in this library.

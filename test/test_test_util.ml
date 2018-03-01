@@ -1,5 +1,5 @@
 open Mocha_of_ocaml
-module R = Reactjscaml
+module R = Jsoo_reactjs
 open Snap_shot_it_of_ocaml
 
 let presenter =
@@ -19,7 +19,7 @@ let nesting =
         end
       end) in
   C.make (fun prop ->
-      let children = Js.array_map (fun t -> R.element ~key:(Js.to_string t) ~props:(object%js
+      let children = Js.array_map (fun t -> R.create_element ~key:(Js.to_string t) ~props:(object%js
                                   val text = t
                                 end) presenter)
           prop##.list
@@ -31,7 +31,7 @@ let () =
   "React test util" >::: [
     "should be able to shallow rendering" >:: (fun () ->
         let renderer = new%js R.Test_renderer.shallow_ctor in
-        renderer##render (R.element ~props:(object%js
+        renderer##render (R.create_element ~props:(object%js
                             val text = Js.string "shallow"
                           end) presenter);
         let output = renderer##getRenderOutput in
@@ -42,7 +42,7 @@ let () =
     "should render only one-deep" >:: (fun () ->
         let renderer = new%js R.Test_renderer.shallow_ctor in
         let array = [|"foo";"bar";"baz"|] in
-        renderer##render (R.element ~props:(object%js
+        renderer##render (R.create_element ~props:(object%js
                             val list = Js.array @@ Array.map Js.string array
                           end) nesting);
         let output = renderer##getRenderOutput in

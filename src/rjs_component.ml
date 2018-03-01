@@ -1,5 +1,5 @@
 
-module C = Roo_core
+module C = Rjs_core
 
 module type Prop = sig
   type t

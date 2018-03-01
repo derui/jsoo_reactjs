@@ -1,4 +1,4 @@
-module Core = Roo_core
+module Core = Rjs_core
 
 (* The module providing ReactDOM API as easy as possible. *)
 module Dom : sig
@@ -38,6 +38,8 @@ type tags = [
   | `colgroup
   | `col
   | `tfoot
+  | `input
+  | `textarea
 ] [@@deriving variants]
 
 let of_tag ?key ?_ref ?props ?(children=[||]) tag = Core.create_dom_element
