@@ -427,4 +427,6 @@ let _ =
             Lwt.return @@ assert_ok ("3" = text)
           )
       );
-  ]
+  ];
+
+  Test_jsoo_dom_input.suite ()
