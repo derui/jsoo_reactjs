@@ -28,7 +28,7 @@ module Element_spec : sig
     on_key_press: (E.Keyboard_event.t -> unit) option;
     on_key_up: (E.Keyboard_event.t -> unit) option;
     on_input: (E.Input_event.t -> unit) option;
-    value: string option;
+    default_value: string option;
     others: (< .. > as 'a) Js.t option;
   }
 

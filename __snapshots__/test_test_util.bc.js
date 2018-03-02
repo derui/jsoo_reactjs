@@ -21,8 +21,7 @@ exports['React test util should render only one-deep 1'] = {
         "key": "foo",
         "ref": null,
         "props": {
-          "text": "foo",
-          "children": []
+          "text": "foo"
         },
         "_owner": null,
         "_store": {}
@@ -31,8 +30,7 @@ exports['React test util should render only one-deep 1'] = {
         "key": "bar",
         "ref": null,
         "props": {
-          "text": "bar",
-          "children": []
+          "text": "bar"
         },
         "_owner": null,
         "_store": {}
@@ -41,8 +39,7 @@ exports['React test util should render only one-deep 1'] = {
         "key": "baz",
         "ref": null,
         "props": {
-          "text": "baz",
-          "children": []
+          "text": "baz"
         },
         "_owner": null,
         "_store": {}

@@ -58,13 +58,13 @@ module React = struct
 
   class type react = object
     method createElement_stateful: ('a, _) stateful_component Js.t -> 'a Js.opt ->
-      element Js.t Js.js_array Js.t -> element Js.t Js.meth
+      element Js.t Js.js_array Js.t Js.optdef -> element Js.t Js.meth
     method createElement_stateless: ('a -> element Js.t) -> 'a Js.opt ->
-      element Js.t Js.js_array Js.t -> element Js.t Js.meth
+      element Js.t Js.js_array Js.t Js.optdef -> element Js.t Js.meth
     method createElement_tag: Js.js_string Js.t -> 'a Js.opt ->
-      element Js.t Js.js_array Js.t -> element Js.t Js.meth
+      element Js.t Js.js_array Js.t Js.optdef -> element Js.t Js.meth
     method createElement_component: Js.js_string Js.t -> 'a Js.opt ->
-      element Js.t Js.js_array Js.t -> element Js.t Js.meth
+      element Js.t Js.js_array Js.t Js.optdef -> element Js.t Js.meth
 
     method _Fragment: Fragment.t Js.t Js.readonly_prop
   end
@@ -84,7 +84,7 @@ module Element_spec = struct
     on_key_press: (E.Keyboard_event.t -> unit) option;
     on_key_up: (E.Keyboard_event.t -> unit) option;
     on_input: (E.Input_event.t -> unit) option;
-    value: string option;
+    default_value: string option;
     others: (< .. > as 'a) Js.t option;
   }
 
@@ -95,7 +95,7 @@ module Element_spec = struct
     on_key_press = None;
     on_key_up = None;
     on_input = None;
-    value = None;
+    default_value = None;
     others = None;
   }
 
@@ -113,8 +113,8 @@ module Element_spec = struct
       val onKeyPress = wrap_func t.on_key_press
       val onKeyUp = wrap_func t.on_key_up
       val onInput = wrap_func t.on_input
-      val value =
-        let v = Js.Optdef.option t.value in Js.Optdef.map v Js.string
+      val defaultValue =
+        let v = Js.Optdef.option t.default_value in Js.Optdef.map v Js.string
       val others = Js.Optdef.option t.others
     end
 end
@@ -197,8 +197,8 @@ let create_element : ?key:string -> ?props:(< .. > as 'a) Js.t -> ?children:Reac
       Helper.Js_object.assign copied_props common_props |> Js.Opt.return
   in
   let children = match children with
-    | None -> Js.array [||]
-    | Some v -> Js.array v
+    | None -> Js.Optdef.empty
+    | Some v -> Js.Optdef.return @@ Js.array v
   in
   match component with
   | React.Stateful component -> React.t##createElement_stateful component props children
@@ -248,8 +248,8 @@ let create_dom_element ?key ?_ref ?props ?children tag =
       |> Js.Opt.return
   in
   let children = match children with
-    | None -> Js.array [||]
-    | Some v -> Js.array v
+    | None -> Js.Optdef.empty
+    | Some v -> Js.Optdef.return @@ Js.array v
   in
   React.t##createElement_tag tag props children
 
@@ -259,7 +259,7 @@ let fragment ?key children =
       val key = let key = Js.Optdef.option key in Js.Optdef.map key Js.string
     end
   in
-  let children = Js.array children in
+  let children = Js.Optdef.return @@ Js.array children in
   React.t##createElement_stateful React.t##._Fragment (Js.Opt.return common_props) children
 
 let text v = Obj.magic @@ Js.string v
