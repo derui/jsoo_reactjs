@@ -47,7 +47,9 @@ module Keyboard_event = struct
 end
 
 module Input_event = struct
-  class type t = object
+  class type _t = object
     inherit synthetic_event
   end
+
+  type t = _t Js.t
 end
