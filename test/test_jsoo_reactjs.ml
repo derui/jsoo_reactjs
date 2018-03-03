@@ -71,17 +71,16 @@ let _ =
                 method real_name: Js.js_string Js.t Js.prop
               end
             end) in
-        let component = M.make R.Core.Component_spec.({
-            empty with
-            initialize = Some (fun this props ->
+        let component = M.make R.(component_spec
+            ~constructor:(fun this props ->
                 let name = Js.to_string props##.name in
                 this##.state := object%js
                   val mutable real_name = Js.string ("Hello " ^ name)
-                end);
-            render = (fun this ->
+                end)
+            (fun this ->
                 R.Dom.of_tag `span ~children:[|R.text @@ Js.to_string this##.state##.real_name|]
-              );
-          }) in
+              )
+          ) in
         let index = Dom_html.getElementById "js" in
         let element = R.create_element component ~props:(object%js
             val name = Js.string "bar"
@@ -110,27 +109,26 @@ let _ =
               end
             end) in
 
-        let component = M.make R.Core.Component_spec.({
-            empty with
-            initialize = Some (fun this props ->
+        let component = M.make R.(component_spec
+            ~constructor:(fun this props ->
                 let name = props##.name in
                 this##.state := object%js
                   val mutable events = Js.array [|name|]
-                end);
-            render = (fun this ->
+                end)
+            ~component_did_mount:(fun this ->
+                let event = Js.array [|Js.string "did_mount"|] in
+                this##setState (object%js
+                  val mutable events = this##.state##.events##concat event
+                end)
+              )
+            (fun this ->
                 let children = Js.to_array this##.state##.events in
                 let children = Array.map (fun v ->
                     let v = (Js.to_string v) ^ "\n" in R.text v
                   ) children in
                 R.Dom.of_tag `span ~children
-              );
-            component_did_mount = Some (fun this ->
-                let event = Js.array [|Js.string "did_mount"|] in
-                this##setState (object%js
-                  val mutable events = this##.state##.events##concat event
-                end)
-              );
-          }) in
+              )
+          ) in
         let index = Dom_html.getElementById "js" in
         let element = R.create_element component ~props:(object%js
             val name = Js.string "bar"
@@ -152,10 +150,7 @@ let _ =
         prepare ();
 
         let index = Dom_html.getElementById "js" in
-        let element = R.Dom.of_tag `span ~props:({
-            R.Core.Element_spec.empty with
-            class_name = Some "test_class";
-          }) in
+        let element = R.Dom.of_tag `span ~props:(R.element_spec ~class_name:"test_class" ()) in
         R.dom##render element index;
 
         let open Lwt.Infix in
@@ -174,13 +169,13 @@ let _ =
 
         let wait, waker = Lwt.wait () in
         let index = Dom_html.getElementById "js" in
-        let element = R.Dom.of_tag `span ~props:({
-            R.Core.Element_spec.empty with
-            class_name = Some "test_class";
-            on_key_down = Some (fun e ->
+        let element = R.Dom.of_tag `span ~props:(
+            R.element_spec ()
+            ~class_name:"test_class"
+            ~on_key_down:(fun e ->
                 let key = Js.to_string e##.key in
                 Lwt.wakeup waker (assert_ok (key = "w")))
-          }) in
+          ) in
         R.dom##render element index;
 
         let open Lwt.Infix in
@@ -203,13 +198,13 @@ let _ =
         prepare ();
 
         let index = Dom_html.getElementById "js" in
-        let element = R.Dom.of_tag `span ~props:({
-            R.Core.Element_spec.empty with
-            class_name = Some "test_class";
-            others = Some (object%js
+        let element = R.Dom.of_tag `span ~props:(
+            R.element_spec ()
+            ~class_name:"test_class"
+            ~others:(object%js
                 val tabIndex = "0"
               end)
-          }) in
+          ) in
         R.dom##render element index;
 
         let open Lwt.Infix in
@@ -231,13 +226,13 @@ let _ =
         prepare ();
 
         let index = Dom_html.getElementById "js" in
-        let element = R.Dom.of_tag `span ~props:({
-            R.Core.Element_spec.empty with
-            class_name = Some "test_class";
-            others = Some (object%js
+        let element = R.Dom.of_tag `span ~props:(
+            R.element_spec ()
+            ~class_name:"test_class"
+            ~others:(object%js
                 val className = "override"
               end)
-          }) in
+          ) in
         R.dom##render element index;
 
         let open Lwt.Infix in
@@ -255,10 +250,7 @@ let _ =
         prepare ();
 
         let index = Dom_html.getElementById "js" in
-        let element = R.Dom.of_tag `div ~props:({
-            R.Core.Element_spec.empty with
-            class_name = Some "test_class";
-          })
+        let element = R.Dom.of_tag `div ~props:(R.element_spec ~class_name:"test_class" ())
             ~children:[|
               R.Dom.of_tag `span ~key:"foo" ~children:[|R.text "foo"|];
               R.Dom.of_tag `span ~key:"bar" ~children:[|R.text "bar"|];
@@ -291,10 +283,7 @@ let _ =
           ) in
 
         let index = Dom_html.getElementById "js" in
-        let element = R.Dom.of_tag `div ~props:({
-            R.Core.Element_spec.empty with
-            class_name = Some "test_class";
-          })
+        let element = R.Dom.of_tag `div ~props:(R.element_spec ~class_name:"test_class" ())
             ~children:[|
               R.create_element ~key:"foo" ~props:(object%js val name = Js.string "foo" end) component;
               R.create_element ~key:"bar" ~props:(object%js val name = Js.string "bar" end) component;
@@ -328,10 +317,7 @@ let _ =
           ) in
 
         let index = Dom_html.getElementById "js" in
-        let element = R.Dom.of_tag `div ~props:({
-            R.Core.Element_spec.empty with
-            class_name = Some "test_class";
-          })
+        let element = R.Dom.of_tag `div ~props:(R.element_spec ~class_name:"test_class" ())
             ~children:[|
               R.create_element ~key:"foo" ~props:(object%js val name = Js.string "foo" end) component;
               R.create_element ~key:"bar" ~props:(object%js val name = Js.string "bar" end) component;
@@ -361,10 +347,9 @@ let _ =
             end
           end) in
 
-        let component = M.make R.Core.Component_spec.({
-            empty with
-            initialize = Some (fun this props -> this##.nodes := Jstable.create ());
-            component_did_mount = Some (fun this ->
+        let component = M.make R.(component_spec
+            ~constructor:(fun this props -> this##.nodes := Jstable.create ())
+            ~component_did_mount:(fun this ->
                 let open R.Ref_table in
                 match find this##.nodes "node" with
                 | None -> ()
@@ -372,8 +357,8 @@ let _ =
                     e##setAttribute (Js.string "data-test") (Js.string "value");
                     e##setAttribute (Js.string "id") (Js.string "value");
                   end
-              );
-            render = (fun this ->
+              )
+            (fun this ->
                 let props = this##.props in
                 R.Dom.of_tag `span ~_ref:(fun e ->
                     R.Ref_table.(add this##.nodes ~key:"node" ~value:e);
@@ -382,7 +367,7 @@ let _ =
                     R.text @@ Js.to_string props##.name
                   |]
               )
-          }) in
+          ) in
         let index = Dom_html.getElementById "js" in
         let element = R.create_element component ~props:(object%js
             val name = Js.string "bar"
@@ -406,14 +391,13 @@ let _ =
             end
           end)(struct type t = unit end) in
 
-        let component = M.make R.Core.Component_spec.({
-            empty with
-            render = (fun this ->
+        let component = M.make R.(component_spec
+            (fun this ->
                 let children = this##.props_defined##.children in
                 let count = children##.length |> string_of_int in
                 R.Dom.of_tag `span ~children:[| R.text count |]
               )
-          }) in
+          ) in
         let index = Dom_html.getElementById "js" in
         let element = R.create_element component ~props:(object%js
             val name = Js.string "bar"

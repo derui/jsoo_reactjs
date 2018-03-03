@@ -21,9 +21,7 @@ let suite () =
   "React DOM element" >::: [
     "can create input element with default value" >:- (fun () ->
         prepare ();
-        let input = R.Dom.of_tag `input ~props:R.Element_spec.({
-            empty with default_value = Some "input"
-          }) in
+        let input = R.Dom.of_tag `input ~props:R.(element_spec ~default_value:"input" ()) in
         let index = Dom_html.getElementById "js" in
         R.dom##render input index;
 
@@ -39,15 +37,13 @@ let suite () =
     "can handle input event on input" >:- (fun () ->
         prepare ();
         let value = ref "" in
-        let on_input e =
+        let on_change e =
           let v = Js.Opt.get (e##.target##getAttribute (Js.string "value")) (fun () -> Js.string "") in
           value := Js.to_string v
         in
-        let input = R.Dom.of_tag `input ~props:R.Element_spec.({
-            empty with
-            on_input = Some on_input;
-            default_value = Some "input"
-          }) in
+        let input = R.Dom.of_tag `input ~props:R.(element_spec
+                                                    ~on_change
+                                                    ~default_value:"input" ()) in
         let index = Dom_html.getElementById "js" in
         R.dom##render input index;
 
@@ -56,7 +52,7 @@ let suite () =
             let input = index##getElementsByTagName (Js.string "input") in
             let input = Js.Opt.get (input##item 0) (fun () -> failwith "input not found") |> Dom_html.element in
             input##setAttribute (Js.string "value") (Js.string "new");
-            R.Test_util.instance##._Simulate##input input Js.Optdef.empty;
+            R.Test_util.instance##._Simulate##change input Js.Optdef.empty;
             Lwt.return @@ assert_ok (!value = "new")
           )
       );

@@ -83,6 +83,7 @@ module Element_spec = struct
     on_key_down: (E.Keyboard_event.t -> unit) option;
     on_key_press: (E.Keyboard_event.t -> unit) option;
     on_key_up: (E.Keyboard_event.t -> unit) option;
+    on_change: (E.Input_event.t -> unit) option;
     on_input: (E.Input_event.t -> unit) option;
     default_value: string option;
     others: (< .. > as 'a) Js.t option;
@@ -94,6 +95,7 @@ module Element_spec = struct
     on_key_down = None;
     on_key_press = None;
     on_key_up = None;
+    on_change = None;
     on_input = None;
     default_value = None;
     others = None;
@@ -112,6 +114,7 @@ module Element_spec = struct
       val onKeyDown = wrap_func t.on_key_down
       val onKeyPress = wrap_func t.on_key_press
       val onKeyUp = wrap_func t.on_key_up
+      val onChange = wrap_func t.on_change
       val onInput = wrap_func t.on_input
       val defaultValue =
         let v = Js.Optdef.option t.default_value in Js.Optdef.map v Js.string
@@ -120,25 +123,51 @@ module Element_spec = struct
 end
 
 
+let element_spec ?key ?class_name ?on_key_down ?on_key_press ?on_key_up
+    ?on_change ?on_input ?default_value ?others () =
+  Element_spec.({
+      key;
+      class_name;
+      on_key_down;
+      on_key_press;
+      on_key_up;
+      on_change;
+      on_input;
+      default_value;
+      others;
+    })
+
 (* Providing type and function for spec of component created in OCaml *)
 module Component_spec = struct
+  type ('props, 'state) constructor =
+    ('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> unit
+
+  type ('props, 'state) render =
+    ('props Js.t, 'state Js.t) React.stateful_component Js.t -> React.element Js.t
+
+  type ('props, 'state, 'result) component_update_handler =
+    ('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> 'result
+
+  type ('props, 'state) component_will_receive_props =
+    ('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> unit
+
+  type ('props, 'state) lifecycle_handler =
+    ('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit
+
   type ('props, 'state) t = {
-    initialize: (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> unit) option;
-    render: ('props Js.t, 'state Js.t) React.stateful_component Js.t -> React.element Js.t;
-    should_component_update:
-      (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> bool) option;
-    component_will_receive_props: (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> unit) option;
-    component_will_mount: (('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit) option;
-    component_will_unmount: (('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit) option;
-    component_did_mount: (('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit) option;
-    component_will_update:
-      (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> unit) option;
-    component_did_update:
-      (('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> unit) option;
+    constructor : ('props, 'state) constructor option;
+    render : ('props, 'state) render;
+    should_component_update : ('props, 'state, bool) component_update_handler option;
+    component_will_receive_props : ('props, 'state) component_will_receive_props option;
+    component_will_mount : ('props, 'state) lifecycle_handler option;
+    component_will_unmount : ('props, 'state) lifecycle_handler option;
+    component_did_mount : ('props, 'state) lifecycle_handler option;
+    component_will_update : ('props, 'state, unit) component_update_handler option;
+    component_did_update : ('props, 'state, unit) component_update_handler option;
   }
 
   let empty = {
-    initialize = None;
+    constructor = None;
     render = (fun _ -> Obj.magic Js.null);
     should_component_update = None;
     component_will_receive_props = None;
@@ -152,7 +181,7 @@ module Component_spec = struct
   let to_js_spec spec =
     let open Helper.Option in
     object%js
-      val constructor = Js.Opt.option @@ (spec.initialize >|= Js.wrap_meth_callback)
+      val constructor = Js.Opt.option @@ (spec.constructor >|= Js.wrap_meth_callback)
       val render = Js.wrap_meth_callback spec.render
       val shouldComponentUpdate = Js.Opt.option @@ (spec.should_component_update >|= Js.wrap_meth_callback)
       val componentWillUpdate = Js.Opt.option @@ (spec.component_will_update >|= Js.wrap_meth_callback)
@@ -163,6 +192,28 @@ module Component_spec = struct
       val componentDidMount = Js.Opt.option @@ (spec.component_did_mount >|= Js.wrap_meth_callback)
     end
 end
+
+let component_spec
+    ?constructor
+    ?should_component_update
+    ?component_will_receive_props
+    ?component_will_mount
+    ?component_will_unmount
+    ?component_did_mount
+    ?component_will_update
+    ?component_did_update
+    render =
+  Component_spec.({
+      constructor;
+      should_component_update;
+      component_will_receive_props;
+      component_will_mount;
+      component_will_unmount;
+      component_did_mount;
+      component_will_update;
+      component_did_update;
+      render;
+    })
 
 let _create_class_of_spec =
   let f = Js.Unsafe.js_expr Rjs_raw.react_create_class_raw in
