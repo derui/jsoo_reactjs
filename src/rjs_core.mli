@@ -30,6 +30,7 @@ module Element_spec : sig
     on_key_up: (E.Keyboard_event.t -> unit) option;
     on_change: (E.Input_event.t -> unit) option;
     on_input: (E.Input_event.t -> unit) option;
+    on_scroll: (E.Scroll_event.t -> unit) option;
     default_value: string option;
     others: (< .. > as 'a) Js.t option;
   }
@@ -43,6 +44,7 @@ val element_spec:
   ?on_key_up:(E.Keyboard_event.t -> unit) ->
   ?on_change:(E.Input_event.t -> unit) ->
   ?on_input:(E.Input_event.t -> unit) ->
+  ?on_scroll:(E.Scroll_event.t -> unit) ->
   ?default_value:string ->
   ?others:(< .. > as 'a) Js.t ->
   unit -> 'a Element_spec.t

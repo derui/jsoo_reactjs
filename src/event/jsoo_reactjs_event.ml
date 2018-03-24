@@ -53,3 +53,14 @@ module Input_event = struct
 
   type t = _t Js.t
 end
+
+
+module Scroll_event = struct
+  class type _t = object
+    inherit synthetic_event
+    method detail: Js.number Js.t Js.readonly_prop
+    method view: Dom.element Js.t Js.readonly_prop
+  end
+
+  type t = _t Js.t
+end
