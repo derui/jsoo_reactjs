@@ -1,3 +1,4 @@
+(* helper module helps to work easy with JavaScript's object *)
 module Helper = struct
   module Option = struct
     let (>|=) v f = match v with
@@ -24,40 +25,29 @@ module React = struct
     method children: element Js.t Js.js_array Js.t Js.readonly_prop
   end
 
-  class type ['props, 'state] stateful_component = object
+  class type ['props, 'state, 'custom] stateful_component = object
     method props: 'props Js.readonly_prop
     method props_defined: defined_props Js.t Js.readonly_prop
     method state: 'state Js.prop
     method setState: 'state -> unit Js.meth
     method nodes : Dom_html.element Js.t Jstable.t Js.prop
+    method custom: 'custom Js.prop
   end
 
-  type ('props, 'state) component =
-    | Stateful of ('props Js.t, 'state Js.t) stateful_component Js.t
+  type ('props, 'state, 'custom) component =
+    | Stateful of ('props Js.t, 'state Js.t, 'custom Js.t) stateful_component Js.t
     | Stateless of ('props Js.t -> element Js.t)
-
-  class type ['props, 'state] js_component_spec = object
-    method constructor: ('props Js.t, 'state Js.t) stateful_component Js.t -> unit Js.meth Js.opt
-    method componentWillMount: unit Js.meth Js.opt
-    method componentDidMount: unit Js.meth Js.opt
-    method render: element Js.meth
-    method componentWillReceiveProps: 'props Js.t -> unit Js.meth Js.opt
-    method shouldComponentUpdate: 'props Js.t -> 'state Js.t -> bool Js.t Js.meth Js.opt
-    method componentWillUpdate: 'props Js.t -> 'state Js.t -> unit Js.meth Js.opt
-    method componentDidUpdate: 'props Js.t -> 'state Js.t -> unit Js.meth Js.opt
-    method componentWillUnmount: unit Js.meth Js.opt
-  end
 
   module Fragment = struct
     class type props = object
       method key: Js.js_string Js.t Js.optdef Js.readonly_prop
     end
 
-    type t = (props Js.t, unit) stateful_component
+    type t = (props Js.t, unit, unit) stateful_component
   end
 
   class type react = object
-    method createElement_stateful: ('a, _) stateful_component Js.t -> 'a Js.opt ->
+    method createElement_stateful: ('a, _, _) stateful_component Js.t -> 'a Js.opt ->
       element Js.t Js.js_array Js.t Js.optdef -> element Js.t Js.meth
     method createElement_stateless: ('a -> element Js.t) -> 'a Js.opt ->
       element Js.t Js.js_array Js.t Js.optdef -> element Js.t Js.meth
@@ -139,31 +129,31 @@ let element_spec ?key ?class_name ?on_key_down ?on_key_press ?on_key_up
 
 (* Providing type and function for spec of component created in OCaml *)
 module Component_spec = struct
-  type ('props, 'state) constructor =
-    ('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> unit
+    type ('props, 'state, 'custom) constructor =
+    ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> 'props Js.t -> unit
 
-  type ('props, 'state) render =
-    ('props Js.t, 'state Js.t) React.stateful_component Js.t -> React.element Js.t
+  type ('props, 'state, 'custom) render =
+    ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> React.element Js.t
 
-  type ('props, 'state, 'result) component_update_handler =
-    ('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> 'result
+  type ('props, 'state, 'custom, 'result) component_update_handler =
+    ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t -> 'result
 
-  type ('props, 'state) component_will_receive_props =
-    ('props Js.t, 'state Js.t) React.stateful_component Js.t -> 'props Js.t -> unit
+  type ('props, 'state, 'custom) component_will_receive_props =
+    ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> 'props Js.t -> unit
 
-  type ('props, 'state) lifecycle_handler =
-    ('props Js.t, 'state Js.t) React.stateful_component Js.t -> unit
+  type ('props, 'state, 'custom) lifecycle_handler =
+    ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> unit
 
-  type ('props, 'state) t = {
-    constructor : ('props, 'state) constructor option;
-    render : ('props, 'state) render;
-    should_component_update : ('props, 'state, bool) component_update_handler option;
-    component_will_receive_props : ('props, 'state) component_will_receive_props option;
-    component_will_mount : ('props, 'state) lifecycle_handler option;
-    component_will_unmount : ('props, 'state) lifecycle_handler option;
-    component_did_mount : ('props, 'state) lifecycle_handler option;
-    component_will_update : ('props, 'state, unit) component_update_handler option;
-    component_did_update : ('props, 'state, unit) component_update_handler option;
+  type ('props, 'state, 'custom) t = {
+    constructor : ('props, 'state, 'custom) constructor option;
+    render : ('props, 'state, 'custom) render;
+    should_component_update : ('props, 'state, 'custom, bool) component_update_handler option;
+    component_will_receive_props : ('props, 'state, 'custom) component_will_receive_props option;
+    component_will_mount : ('props, 'state, 'custom) lifecycle_handler option;
+    component_will_unmount : ('props, 'state, 'custom) lifecycle_handler option;
+    component_did_mount : ('props, 'state, 'custom) lifecycle_handler option;
+    component_will_update : ('props, 'state, 'custom, unit) component_update_handler option;
+    component_did_update : ('props, 'state, 'custom, unit) component_update_handler option;
   }
 
   let empty = {
@@ -220,21 +210,18 @@ let _create_class_of_spec =
   Js.Unsafe.fun_call f [||]
 
 (* Create component from OCaml's component spec *)
-let create_stateful_component : ('p, 's) Component_spec.t ->
-  ('p, 's) React.component = fun spec ->
+let create_stateful_component spec =
   let spec = Component_spec.to_js_spec spec in
   React.Stateful (Js.Unsafe.(fun_call _create_class_of_spec [|inject React.t; inject spec|]))
 
-let create_stateless_component : ('p Js.t -> React.element Js.t) ->
-  ('p, unit) React.component = fun spec ->
+let create_stateless_component spec =
   (* NOTE: ReactJS with functional component will check passed function to
      ReactDOM.render, so we can not wrap a ocaml function that will call in React.
   *)
   React.Stateless spec
 
 (* alias function for React.createElement *)
-let create_element : ?key:string -> ?props:(< .. > as 'a) Js.t -> ?children:React.element Js.t array ->
-  ('a, 'b) React.component -> React.element Js.t = fun ?key ?props ?children component ->
+let create_element  ?key ?props ?children component =
   let open Helper.Option in
   let common_props = object%js
     val key = let key = Js.Optdef.option key in Js.Optdef.map key Js.string

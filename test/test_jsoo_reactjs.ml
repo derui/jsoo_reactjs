@@ -411,6 +411,39 @@ let _ =
             Lwt.return @@ assert_ok ("3" = text)
           )
       );
+    "can define custom object in this" >:- (fun () ->
+        prepare ();
+        let module M = R.Component.Make_stateful_custom(struct
+            class type t = object
+              method name: Js.js_string Js.t Js.readonly_prop
+            end
+          end)(struct type t = unit end)
+            (struct
+              class type t = object
+                method v: string Js.prop
+              end
+            end)in
+
+        let component = M.make R.(
+            component_spec
+              ~constructor:(fun this prop -> this##.custom := object%js
+                               val mutable v = "foo"
+                             end)
+              (fun this -> R.Dom.of_tag `span ~children:[| R.text this##.custom##.v |])
+          ) in
+        let index = Dom_html.getElementById "js" in
+        let element = R.create_element component ~props:(object%js
+            val name = Js.string "bar"
+          end) ~children:[||] in
+        R.dom##render element index;
+
+        let open Lwt.Infix in
+        Lwt_js.sleep 0.0 >>= (fun () ->
+            let option () = Js.string "" in
+            let text = Js.Opt.get (index##.textContent) option |> Js.to_string in
+            Lwt.return @@ assert_ok ("foo" = text)
+          )
+      );
   ];
 
   Test_jsoo_dom_input.suite ()

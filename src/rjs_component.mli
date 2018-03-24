@@ -22,10 +22,14 @@ module type State = sig
   type t
 end
 
+module type Custom = sig
+  type t
+end
+
 module type Stateless = sig
   type props
   type renderer = props Js.t -> Rjs_core.React.element Js.t
-  val make : renderer -> (props, unit) Rjs_core.React.component
+  val make : renderer -> (props, unit, unit) Rjs_core.React.component
 end
 
 module Make_stateless(P: Prop) : Stateless with type props = P.t
@@ -33,10 +37,22 @@ module Make_stateless(P: Prop) : Stateless with type props = P.t
 module type Stateful = sig
   type props
   type state
-  type spec = (props, state) Rjs_core.Component_spec.t
+  type spec = (props, state, unit) Rjs_core.Component_spec.t
 
-  val make : spec -> (props, state) Rjs_core.React.component
+  val make : spec -> (props, state, unit) Rjs_core.React.component
 end
 
 module Make_stateful(P:Prop)(S:State) : Stateful
   with type props = P.t and type state = S.t
+
+module type Stateful_custom = sig
+  type props
+  type state
+  type custom
+  type spec = (props, state, custom) Rjs_core.Component_spec.t
+
+  val make : spec -> (props, state, custom) Rjs_core.React.component
+end
+
+module Make_stateful_custom(P:Prop)(S:State)(C:Custom) : Stateful_custom
+  with type props = P.t and type state = S.t and type custom = C.t
