@@ -35,6 +35,7 @@ type tags = [
   | `thead
   | `td
   | `th
+  | `tr
   | `colgroup
   | `col
   | `tfoot
