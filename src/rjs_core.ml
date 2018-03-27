@@ -76,21 +76,10 @@ module Element_spec = struct
     on_change: (E.Input_event.t -> unit) option;
     on_input: (E.Input_event.t -> unit) option;
     on_scroll: (E.Scroll_event.t -> unit) option;
+    on_focus: (E.Focus_event.t -> unit) option;
+    on_blur: (E.Focus_event.t -> unit) option;
     default_value: string option;
     others: (< .. > as 'a) Js.t option;
-  }
-
-  let empty = {
-    key = None;
-    class_name = None;
-    on_key_down = None;
-    on_key_press = None;
-    on_key_up = None;
-    on_change = None;
-    on_input = None;
-    on_scroll = None;
-    default_value = None;
-    others = None;
   }
 
   let to_js t =
@@ -109,16 +98,19 @@ module Element_spec = struct
       val onChange = wrap_func t.on_change
       val onInput = wrap_func t.on_input
       val onScroll = wrap_func t.on_scroll
+      val onFocus = wrap_func t.on_focus
+      val onBlur = wrap_func t.on_blur
       val defaultValue =
         let v = Js.Optdef.option t.default_value in Js.Optdef.map v Js.string
       val others = Js.Optdef.option t.others
     end
 end
 
+type 'a element_spec = 'a Element_spec.t
 
 let element_spec ?key ?class_name ?on_key_down ?on_key_press ?on_key_up
     ?on_change ?on_input
-    ?on_scroll
+    ?on_scroll ?on_focus ?on_blur
     ?default_value ?others () =
   Element_spec.({
       key;
@@ -129,6 +121,8 @@ let element_spec ?key ?class_name ?on_key_down ?on_key_press ?on_key_up
       on_change;
       on_input;
       on_scroll;
+      on_focus;
+      on_blur;
       default_value;
       others;
     })

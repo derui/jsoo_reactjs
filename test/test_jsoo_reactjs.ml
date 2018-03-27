@@ -446,4 +446,5 @@ let _ =
       );
   ];
 
-  Test_jsoo_dom_input.suite ()
+  Test_jsoo_dom_input.suite ();
+  Test_jsoo_events.suite ()

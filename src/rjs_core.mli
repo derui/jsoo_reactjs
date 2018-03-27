@@ -21,20 +21,7 @@ end
 
 module E = Jsoo_reactjs_event
 
-module Element_spec : sig
-  type 'a t = {
-    key: string option;
-    class_name: string option;
-    on_key_down: (E.Keyboard_event.t -> unit) option;
-    on_key_press: (E.Keyboard_event.t -> unit) option;
-    on_key_up: (E.Keyboard_event.t -> unit) option;
-    on_change: (E.Input_event.t -> unit) option;
-    on_input: (E.Input_event.t -> unit) option;
-    on_scroll: (E.Scroll_event.t -> unit) option;
-    default_value: string option;
-    others: (< .. > as 'a) Js.t option;
-  }
-end
+type 'a element_spec constraint 'a = < .. >
 
 val element_spec:
   ?key:string ->
@@ -45,9 +32,11 @@ val element_spec:
   ?on_change:(E.Input_event.t -> unit) ->
   ?on_input:(E.Input_event.t -> unit) ->
   ?on_scroll:(E.Scroll_event.t -> unit) ->
+  ?on_focus:(E.Focus_event.t -> unit) ->
+  ?on_blur:(E.Focus_event.t -> unit) ->
   ?default_value:string ->
   ?others:(< .. > as 'a) Js.t ->
-  unit -> 'a Element_spec.t
+  unit -> 'a element_spec
 
 (* The module providing component spec to be able to create component via React API.
    Some of fields are optional and omit if you do not need their.
@@ -68,17 +57,7 @@ module Component_spec : sig
   type ('props, 'state, 'custom) lifecycle_handler =
     ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> unit
 
-  type ('props, 'state, 'custom) t = {
-    constructor : ('props, 'state, 'custom) constructor option;
-    render : ('props, 'state, 'custom) render;
-    should_component_update : ('props, 'state, 'custom, bool) component_update_handler option;
-    component_will_receive_props : ('props, 'state, 'custom) component_will_receive_props option;
-    component_will_mount : ('props, 'state, 'custom) lifecycle_handler option;
-    component_will_unmount : ('props, 'state, 'custom) lifecycle_handler option;
-    component_did_mount : ('props, 'state, 'custom) lifecycle_handler option;
-    component_will_update : ('props, 'state, 'custom, unit) component_update_handler option;
-    component_did_update : ('props, 'state, 'custom, unit) component_update_handler option;
-  }
+  type ('props, 'state, 'custom) t
 end
 
 (** Define component spec with React.js handler functions. *)
@@ -108,7 +87,7 @@ val create_element : ?key:string ->
 (** Create element with tag *)
 val create_dom_element: ?key:string ->
   ?_ref:(Dom_html.element Js.t -> unit) ->
-  ?props:'a Element_spec.t -> ?children:React.element Js.t array ->
+  ?props:'a element_spec -> ?children:React.element Js.t array ->
   string -> React.element Js.t
 
 (** Create Fragment component to wrap empty dom *)

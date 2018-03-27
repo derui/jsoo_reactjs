@@ -7,7 +7,7 @@
 
 (executable
  ((name test_jsoo_reactjs)
-  (modules (test_jsoo_reactjs test_jsoo_dom_input))
+  (modules (test_jsoo_reactjs test_jsoo_dom_input test_jsoo_events))
   (libraries (js_of_ocaml jsoo_reactjs mocha_of_ocaml))
   (js_of_ocaml ((flags ("--pretty" "--source-map-inline"))))
   (preprocess (pps (js_of_ocaml-ppx)))))
