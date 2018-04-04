@@ -3,9 +3,7 @@ exports['React test util should be able to shallow rendering 1'] = {
   "key": null,
   "ref": null,
   "props": {
-    "children": [
-      "shallow"
-    ]
+    "children": "shallow"
   },
   "_owner": null,
   "_store": {}

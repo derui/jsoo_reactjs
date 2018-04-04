@@ -79,15 +79,16 @@ val create_stateful_component : ('p, 's, 'c) Component_spec.t -> ('p, 's, 'c) Re
 (** Create stateless component with renderer *)
 val create_stateless_component : ('p Js.t -> React.element Js.t) -> ('p, unit, unit) React.component
 
-(** Create element with component *)
+(** Create element with component.*)
 val create_element : ?key:string ->
-  ?props:(< .. > as 'a) Js.t -> ?children:React.element Js.t array ->
+  ?props:(< .. > as 'a) Js.t ->
+  ?children:React.element Js.t list ->
   ('a, 'b, _) React.component -> React.element Js.t
 
 (** Create element with tag *)
 val create_dom_element: ?key:string ->
   ?_ref:(Dom_html.element Js.t -> unit) ->
-  ?props:'a element_spec -> ?children:React.element Js.t array ->
+  ?props:'a element_spec -> ?children:React.element Js.t list ->
   string -> React.element Js.t
 
 (** Create Fragment component to wrap empty dom *)

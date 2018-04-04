@@ -49,10 +49,16 @@ module React = struct
   class type react = object
     method createElement_stateful: ('a, _, _) stateful_component Js.t -> 'a Js.opt ->
       element Js.t Js.js_array Js.t Js.optdef -> element Js.t Js.meth
+    method createElement_statefulWithChild: ('a, _, _) stateful_component Js.t -> 'a Js.opt ->
+      element Js.t Js.optdef -> element Js.t Js.meth
     method createElement_stateless: ('a -> element Js.t) -> 'a Js.opt ->
       element Js.t Js.js_array Js.t Js.optdef -> element Js.t Js.meth
+    method createElement_statelessWithChild: ('a -> element Js.t) -> 'a Js.opt ->
+      element Js.t Js.optdef -> element Js.t Js.meth
     method createElement_tag: Js.js_string Js.t -> 'a Js.opt ->
       element Js.t Js.js_array Js.t Js.optdef -> element Js.t Js.meth
+    method createElement_tagWithChild: Js.js_string Js.t -> 'a Js.opt ->
+      element Js.t Js.optdef -> element Js.t Js.meth
     method createElement_component: Js.js_string Js.t -> 'a Js.opt ->
       element Js.t Js.js_array Js.t Js.optdef -> element Js.t Js.meth
 
@@ -221,7 +227,7 @@ let create_stateless_component spec =
   React.Stateless spec
 
 (* alias function for React.createElement *)
-let create_element  ?key ?props ?children component =
+let create_element  ?key ?props ?(children=[]) component =
   let open Helper.Option in
   let common_props = object%js
     val key = let key = Js.Optdef.option key in Js.Optdef.map key Js.string
@@ -234,14 +240,19 @@ let create_element  ?key ?props ?children component =
       let copied_props = Helper.Js_object.copy props in
       Helper.Js_object.assign copied_props common_props |> Js.Opt.return
   in
-  let children = match children with
-    | None -> Js.Optdef.empty
-    | Some v -> Js.Optdef.return @@ Js.array v
-  in
   match component with
-  | React.Stateful component -> React.t##createElement_stateful component props children
-  | React.Stateless component -> React.t##createElement_stateless component props children
-
+  | React.Stateful component -> begin
+      match children with
+      | []  -> React.t##createElement_stateful component props Js.Optdef.empty
+      | [v] -> React.t##createElement_statefulWithChild component props (Js.Optdef.return v)
+      | _ as v -> React.t##createElement_stateful component props (Js.Optdef.return @@ Js.array @@ Array.of_list v)
+    end
+  | React.Stateless component -> begin
+      match children with
+      | []  -> React.t##createElement_stateless component props Js.Optdef.empty
+      | [v] -> React.t##createElement_statelessWithChild component props (Js.Optdef.return v)
+      | _ as v -> React.t##createElement_stateless component props (Js.Optdef.return @@ Js.array @@ Array.of_list v)
+    end
 
 module StringSet = Set.Make(struct
     type t = string
@@ -269,7 +280,7 @@ let merge_other_keys js =
       js
     end
 
-let create_dom_element ?key ?_ref ?props ?children tag =
+let create_dom_element ?key ?_ref ?props ?(children=[]) tag =
   let tag = Js.string tag in
   let common_props =
     object%js
@@ -285,11 +296,10 @@ let create_dom_element ?key ?_ref ?props ?children tag =
       Helper.Js_object.assign copied_props common_props
       |> Js.Opt.return
   in
-  let children = match children with
-    | None -> Js.Optdef.empty
-    | Some v -> Js.Optdef.return @@ Js.array v
-  in
-  React.t##createElement_tag tag props children
+  match children with
+    | [] -> React.t##createElement_tag tag props Js.Optdef.empty
+    | [v] -> React.t##createElement_tagWithChild tag props (Js.Optdef.return v)
+    | _ as v -> React.t##createElement_tag tag props (Js.Optdef.return @@ Js.array @@ Array.of_list v)
 
 let fragment ?key children =
   let common_props =
