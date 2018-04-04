@@ -1,8 +1,10 @@
 (* the module for low-level binding for React *)
 module React : sig
   type element
+  type children
+
   class type defined_props = object
-    method children: element Js.t Js.js_array Js.t Js.readonly_prop
+    method children: children Js.t Js.readonly_prop
   end
 
   class type ['props, 'state, 'custom] stateful_component =
@@ -17,6 +19,27 @@ module React : sig
 
   type ('props, 'state, 'custom) component
 
+end
+
+module Children : sig
+  (** A binding of React.Children.map to be friendly for OCaml *)
+  val map: f:(React.element Js.t -> React.element Js.t) ->
+    React.children Js.t -> React.element Js.t list option
+
+  (** A binding of React.Children.forEach to be friendly for OCaml *)
+  val iter: f:(React.element Js.t -> unit) -> React.children Js.t -> unit
+
+  (** A binding of React.Children.count *)
+  val count: React.children Js.t -> int
+
+  (** A binding of React.Children.only to be friendly for OCaml *)
+  val only: React.children Js.t -> React.element Js.t option
+
+  (** A binding of React.Children.toArray to be friendly for OCaml *)
+  val to_list: React.children Js.t -> React.element Js.t list
+
+  (** Convert children to element to be able to pass argument as create_element *)
+  val to_element: React.children Js.t -> React.element Js.t
 end
 
 module E = Jsoo_reactjs_event

@@ -392,7 +392,7 @@ let _ =
         let component = M.make R.(component_spec
             (fun this ->
                 let children = this##.props_defined##.children in
-                let count = children##.length |> string_of_int in
+                let count = R.Children.count children |> string_of_int in
                 R.Dom.of_tag `span ~children:[R.text count]
               )
           ) in

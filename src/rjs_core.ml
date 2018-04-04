@@ -20,9 +20,10 @@ end
 module React = struct
 
   type element
+  type children
 
   class type defined_props = object
-    method children: element Js.t Js.js_array Js.t Js.readonly_prop
+    method children: children Js.t Js.readonly_prop
   end
 
   class type ['props, 'state, 'custom] stateful_component = object
@@ -46,6 +47,18 @@ module React = struct
     type t = (props Js.t, unit, unit) stateful_component
   end
 
+  (** binding for React.Children *)
+  module Children = struct
+    class type t = object
+      method map: children Js.t -> (element Js.t, element Js.t) Js.meth_callback ->
+        element Js.t Js.js_array Js.t Js.optdef Js.meth
+      method forEach: children Js.t -> (element Js.t, unit) Js.meth_callback -> unit Js.meth
+      method count: children Js.t -> int Js.meth
+      method only: children Js.t -> element Js.t Js.meth
+      method toArray: children Js.t -> element Js.t Js.js_array Js.t Js.meth
+    end
+  end
+
   class type react = object
     method createElement_stateful: ('a, _, _) stateful_component Js.t -> 'a Js.opt ->
       element Js.t Js.js_array Js.t Js.optdef -> element Js.t Js.meth
@@ -63,11 +76,38 @@ module React = struct
       element Js.t Js.js_array Js.t Js.optdef -> element Js.t Js.meth
 
     method _Fragment: Fragment.t Js.t Js.readonly_prop
+    method _Children: Children.t Js.t Js.readonly_prop
   end
 
   (* create component from spec. *)
   let t : react Js.t = Js.Unsafe.pure_js_expr "require('react')"
 
+end
+
+(** binding for React.Children *)
+module Children = struct
+  let map ~f children =
+    let c = React.t##._Children in
+    let ret = c##map children Js.(wrap_meth_callback f) in
+    Js.Optdef.map ret (fun v -> Js.to_array v |> Array.to_list) |> Js.Optdef.to_option
+
+  let iter ~f children =
+    let c = React.t##._Children in
+    c##forEach children Js.(wrap_meth_callback f)
+
+  let count children = React.t##._Children##count children
+
+  let only children =
+    try
+      Some (React.t##._Children##only children)
+    with Js.Error _ -> None
+
+  let to_list children =
+    let ary = React.t##._Children##toArray children in
+    Js.to_array ary |> Array.to_list
+
+  let to_element: React.children Js.t -> React.element Js.t = fun children ->
+    Js.Unsafe.coerce children
 end
 
 module E = Jsoo_reactjs_event
