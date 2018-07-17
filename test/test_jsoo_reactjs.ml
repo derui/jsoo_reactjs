@@ -1,5 +1,6 @@
 module R = Jsoo_reactjs
 open Mocha_of_ocaml
+open Mocha_of_ocaml_async
 
 let prepare () =
   let div = Dom_html.createDiv Dom_html.document in
@@ -309,11 +310,11 @@ let _ =
             end
           end) in
         let component = M.make (fun props ->
-            R.Core.fragment [|
+            R.Core.fragment [
               R.text @@ Js.to_string props##.name;
               R.text @@ Js.to_string props##.name;
               R.text @@ Js.to_string props##.name;
-            |]
+            ]
           ) in
 
         let index = Dom_html.getElementById "js" in
@@ -348,10 +349,10 @@ let _ =
           end) in
 
         let component = M.make R.(component_spec
-            ~constructor:(fun this props -> this##.nodes := Jstable.create ())
+            ~constructor:(fun this _ -> this##.nodes := Jstable.create ())
             ~component_did_mount:(fun this ->
                 let open R.Ref_table in
-                match find this##.nodes "node" with
+                match find this##.nodes ~key:"node" with
                 | None -> ()
                 | Some e -> begin
                     e##setAttribute (Js.string "data-test") (Js.string "value");
@@ -424,7 +425,7 @@ let _ =
 
         let component = M.make R.(
             component_spec
-              ~constructor:(fun this prop -> this##.custom := object%js
+              ~constructor:(fun this _ -> this##.custom := object%js
                                val mutable v = "foo"
                              end)
               (fun this -> R.Dom.of_tag `span ~children:[R.text this##.custom##.v])

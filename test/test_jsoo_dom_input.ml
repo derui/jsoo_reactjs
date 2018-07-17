@@ -1,5 +1,6 @@
 module R = Jsoo_reactjs
 open Mocha_of_ocaml
+open Mocha_of_ocaml_async
 
 let prepare () =
   let div = Dom_html.createDiv Dom_html.document in

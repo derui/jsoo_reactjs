@@ -115,7 +115,7 @@ val create_dom_element: ?key:string ->
   string -> React.element Js.t
 
 (** Create Fragment component to wrap empty dom *)
-val fragment: ?key:string -> React.element Js.t array -> React.element Js.t
+val fragment: ?key:string -> React.element Js.t list -> React.element Js.t
 
 (** Create element for text node *)
 val text: string -> React.element Js.t

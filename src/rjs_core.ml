@@ -202,18 +202,6 @@ module Component_spec = struct
     component_did_update : ('props, 'state, 'custom, unit) component_update_handler option;
   }
 
-  let empty = {
-    constructor = None;
-    render = (fun _ -> Obj.magic Js.null);
-    should_component_update = None;
-    component_will_receive_props = None;
-    component_will_mount = None;
-    component_will_unmount = None;
-    component_did_mount = None;
-    component_will_update = None;
-    component_did_update = None
-  }
-
   let to_js_spec spec =
     let open Helper.Option in
     object%js
@@ -268,7 +256,6 @@ let create_stateless_component spec =
 
 (* alias function for React.createElement *)
 let create_element  ?key ?props ?(children=[]) component =
-  let open Helper.Option in
   let common_props = object%js
     val key = let key = Js.Optdef.option key in Js.Optdef.map key Js.string
   end in
@@ -347,7 +334,7 @@ let fragment ?key children =
       val key = let key = Js.Optdef.option key in Js.Optdef.map key Js.string
     end
   in
-  let children = Js.Optdef.return @@ Js.array children in
+  let children = Js.Optdef.return @@ Js.array @@ Array.of_list children in
   React.t##createElement_stateful React.t##._Fragment (Js.Opt.return common_props) children
 
 let text v = Obj.magic @@ Js.string v
