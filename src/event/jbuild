@@ -1,7 +1,0 @@
-(jbuild_version 1)
-
-(library
- ((name jsoo_reactjs_event)
-  (public_name jsoo_reactjs.event)
-  (libraries (js_of_ocaml))
-  (preprocess (pps (js_of_ocaml-ppx ppx_variants_conv)))))

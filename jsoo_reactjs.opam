@@ -9,11 +9,11 @@ bug-reports: "https://github.com/derui/reactjscaml"
 dev-repo: "git+https://github.com/derui/reactjscaml"
 tags: []
 build: [
-  ["jbuilder" "build" "-p" name "-j" jobs]
-  ["jbuilder" "runt" "-p" name ] {test}
+  ["dune" "build" "-p" name "-j" jobs]
+  ["dune" "runtest" "-p" name ] {test}
 ]
 depends: [
-  "jbuilder" {build & >= "1.0+beta16"}
+  "dune" {build & >= "1.0.0"}
   "js_of_ocaml" { >= "3.0.2"}
   "js_of_ocaml-ppx" { >= "3.0.2"}
   "ppx_variants_conv" { >= "v0.10.0"}
