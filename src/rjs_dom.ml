@@ -41,6 +41,10 @@ type tags = [
   | `tfoot
   | `input
   | `textarea
+  | `p
+  | `main
+  | `a
+  | `label
 ] [@@deriving variants]
 
 let of_tag ?key ?_ref ?props ?children tag = Core.create_dom_element
