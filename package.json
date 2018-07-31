@@ -4,7 +4,7 @@
   "scripts": {
     "bundle:test": "webpack",
     "run:test": "karma start --single-run --browsers ChromeHeadlessNoSandbox karma.conf.js",
-    "run:mocha": "mocha --colors _build/default/test/test_test_util.bc.js",
+    "run:mocha": "mocha --colors _build/default/test/test_test_util.bc.js _build/default/test/ppx/ppx_test.bc.js",
     "test": "npm-run-all -s bundle:test run:test run:mocha"
   },
   "keywords": [],

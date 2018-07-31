@@ -21,31 +21,3 @@ end
 
 (* Export ReactDOM API *)
 let dom = Dom.t
-
-type tags = [
-  | `span
-  | `div
-  | `ul
-  | `li
-  | `section
-  | `header
-  | `footer
-  | `table
-  | `tbody
-  | `thead
-  | `td
-  | `th
-  | `tr
-  | `colgroup
-  | `col
-  | `tfoot
-  | `input
-  | `textarea
-  | `p
-  | `main
-  | `a
-  | `label
-] [@@deriving variants]
-
-let of_tag ?key ?_ref ?props ?children tag = Core.create_dom_element
-    ?key ?_ref ?props ?children @@ Variants_of_tags.to_name tag
