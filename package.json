@@ -1,6 +1,6 @@
 {
   "name": "jsoo_reactjs",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "scripts": {
     "bundle:test": "webpack",
     "run:test": "karma start --single-run --browsers ChromeHeadlessNoSandbox karma.conf.js",
