@@ -64,3 +64,25 @@ exports['ppx tool should be able to create custom component 1'] = {
   "_owner": null,
   "_store": {}
 }
+
+exports['ppx tool should be able to use variable as children 1'] = {
+  "type": "span",
+  "key": null,
+  "ref": null,
+  "props": {
+    "className": "span",
+    "children": {
+      "type": "a",
+      "key": null,
+      "ref": null,
+      "props": {
+        "className": "a",
+        "children": "foo"
+      },
+      "_owner": null,
+      "_store": {}
+    }
+  },
+  "_owner": null,
+  "_store": {}
+}

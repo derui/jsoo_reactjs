@@ -56,5 +56,21 @@ let () =
         let output = renderer##getRenderOutput in
         snapshot(output);
         assert_ok true
-      )
+      );
+    "should be able to use variable as children" >:: (fun () ->
+        let module C = R.Component.Make_stateless(struct
+            class type t = object
+              method sample: string Js.readonly_prop
+            end
+          end)
+        in
+        let t = C.make (fun props ->
+            let children = [R.text props##.sample] in
+            [%e span ~class_name:"span" [[%e a ~class_name:"a" children]]]) in
+        let renderer = new%js R.Test_renderer.shallow_ctor in
+        renderer##render [%c t ~sample:"foo"];
+        let output = renderer##getRenderOutput in
+        snapshot(output);
+        assert_ok true
+      );
   ]
