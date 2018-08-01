@@ -9,7 +9,7 @@ let presenter =
         end
       end) in
   C.make (fun prop ->
-      R.Dom.of_tag `div ~children:[R.text @@ Js.to_string prop##.text]
+      R.create_dom_element "div" ~children:[R.text @@ Js.to_string prop##.text]
     )
 
 let nesting =
@@ -26,7 +26,7 @@ let nesting =
                      |> Js.to_array
                      |> Array.to_list
       in
-      R.Dom.of_tag `div ~children
+      R.create_dom_element "div" ~children
     )
 
 let () =
