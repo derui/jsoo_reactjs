@@ -4,9 +4,9 @@ version: "0.2.0"
 maintainer: "derutakayu@gmail.com"
 authors: "derui"
 license: "MIT"
-homepage: "https://github.com/derui/reactjscaml"
-bug-reports: "https://github.com/derui/reactjscaml"
-dev-repo: "git+https://github.com/derui/reactjscaml"
+homepage: "https://github.com/derui/jsoo_reactjs"
+bug-reports: "https://github.com/derui/jsoo_reactjs"
+dev-repo: "git+https://github.com/derui/jsoo_reactjs"
 tags: []
 build: [
   ["dune" "build" "-p" name "-j" jobs]
