@@ -2,6 +2,7 @@
   "name": "jsoo_reactjs",
   "version": "0.2.0",
   "scripts": {
+    "compile": "node scripts/gen_compiled_module.js",
     "bundle:test": "webpack",
     "run:test": "karma start --single-run --browsers ChromeHeadlessNoSandbox karma.conf.js",
     "run:mocha": "mocha --colors _build/default/test/test_test_util.bc.js _build/default/test/ppx/ppx_test.bc.js",

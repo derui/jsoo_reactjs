@@ -1,4 +1,3 @@
-module Core = Rjs_core
 
 (* The module providing ReactDOM API as easy as possible. *)
 module Dom : sig

@@ -68,6 +68,12 @@ module Component_spec : sig
   type ('props, 'state, 'custom) constructor =
     ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> 'props Js.t -> unit
 
+  type ('props, 'state, 'custom) initial_custom =
+    ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> 'props Js.t -> 'custom Js.t
+
+  type ('props, 'state, 'custom) initial_state =
+    ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t
+
   type ('props, 'state, 'custom) render =
     ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> React.element Js.t
 
@@ -86,6 +92,8 @@ end
 (** Define component spec with React.js handler functions. *)
 val component_spec:
   ?constructor:('props, 'state, 'custom) Component_spec.constructor ->
+  ?initial_state:('props, 'state, 'custom) Component_spec.initial_state ->
+  ?initial_custom:('props, 'state, 'custom) Component_spec.initial_custom ->
   ?should_component_update:('props, 'state, 'custom, bool) Component_spec.component_update_handler ->
   ?component_will_receive_props:('props, 'state, 'custom) Component_spec.component_will_receive_props ->
   ?component_will_mount:('props, 'state, 'custom) Component_spec.lifecycle_handler ->

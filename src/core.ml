@@ -178,6 +178,12 @@ module Component_spec = struct
     type ('props, 'state, 'custom) constructor =
     ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> 'props Js.t -> unit
 
+  type ('props, 'state, 'custom) initial_custom =
+    ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> 'props Js.t -> 'custom Js.t
+
+  type ('props, 'state, 'custom) initial_state =
+    ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> 'props Js.t -> 'state Js.t
+
   type ('props, 'state, 'custom) render =
     ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> React.element Js.t
 
@@ -192,6 +198,8 @@ module Component_spec = struct
 
   type ('props, 'state, 'custom) t = {
     constructor : ('props, 'state, 'custom) constructor option;
+    initial_state: ('props, 'state, 'custom) initial_state option;
+    initial_custom: ('props, 'state, 'custom) initial_custom option;
     render : ('props, 'state, 'custom) render;
     should_component_update : ('props, 'state, 'custom, bool) component_update_handler option;
     component_will_receive_props : ('props, 'state, 'custom) component_will_receive_props option;
@@ -206,6 +214,8 @@ module Component_spec = struct
     let open Helper.Option in
     object%js
       val constructor = Js.Opt.option @@ (spec.constructor >|= Js.wrap_meth_callback)
+      val initialState = Js.Opt.option @@ (spec.initial_state >|= Js.wrap_meth_callback)
+      val initialCustom = Js.Opt.option @@ (spec.initial_custom >|= Js.wrap_meth_callback)
       val render = Js.wrap_meth_callback spec.render
       val shouldComponentUpdate = Js.Opt.option @@ (spec.should_component_update >|= Js.wrap_meth_callback)
       val componentWillUpdate = Js.Opt.option @@ (spec.component_will_update >|= Js.wrap_meth_callback)
@@ -219,6 +229,8 @@ end
 
 let component_spec
     ?constructor
+    ?initial_state
+    ?initial_custom
     ?should_component_update
     ?component_will_receive_props
     ?component_will_mount
@@ -229,6 +241,8 @@ let component_spec
     render =
   Component_spec.({
       constructor;
+      initial_state;
+      initial_custom;
       should_component_update;
       component_will_receive_props;
       component_will_mount;
@@ -240,7 +254,7 @@ let component_spec
     })
 
 let _create_class_of_spec =
-  let f = Js.Unsafe.js_expr Rjs_raw.react_create_class_raw in
+  let f = Js.Unsafe.js_expr Raw.react_create_class_raw in
   Js.Unsafe.fun_call f [||]
 
 (* Create component from OCaml's component spec *)

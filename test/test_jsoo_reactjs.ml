@@ -1,6 +1,6 @@
-module R = Jsoo_reactjs
 open Mocha_of_ocaml
 open Mocha_of_ocaml_async
+module R = Jsoo_reactjs
 
 let prepare () =
   let div = Dom_html.createDiv Dom_html.document in
@@ -36,16 +36,17 @@ let _ =
 
     "can create original stateless component" >:- (fun () ->
         prepare ();
-        let module M = R.Component.Make_stateless(struct
-            class type t = object
-              method name: Js.js_string Js.t Js.readonly_prop
-            end
-          end) in
-        let component = M.make (fun props ->
-            R.create_dom_element "span" ~children:[
-              R.text @@ Js.to_string props##.name
-            ]
-          ) in
+        let component = R.Component.make_stateless
+            ~props:(module struct
+                     class type t = object
+                       method name : Js.js_string Js.t Js.readonly_prop
+                     end
+                   end)
+            ~render:(fun props ->
+                R.create_dom_element "span" ~children:[
+                  R.text @@ Js.to_string props##.name
+                ]
+              ) in
         let index = Dom_html.getElementById "js" in
         let element = R.create_element component ~props:(object%js
             val name = Js.string "bar"
@@ -62,26 +63,23 @@ let _ =
 
     "can create original stateful component" >:- (fun () ->
         prepare ();
-        let module M = R.Component.Make_stateful(struct
-            class type t = object
-              method name: Js.js_string Js.t Js.readonly_prop
-            end
-          end)
-            (struct
-              class type t = object
-                method real_name: Js.js_string Js.t Js.prop
-              end
-            end) in
-        let component = M.make R.(component_spec
-            ~constructor:(fun this props ->
-                let name = Js.to_string props##.name in
-                this##.state := object%js
-                  val mutable real_name = Js.string ("Hello " ^ name)
-                end)
-            (fun this ->
-                R.create_dom_element "span" ~children:[R.text @@ Js.to_string this##.state##.real_name]
-              )
-          ) in
+        let component = R.Component.make_stateful
+            ~props:(module struct
+                     class type t = object
+                       method name: Js.js_string Js.t Js.readonly_prop
+                     end
+                   end)
+            ~spec:R.(component_spec
+                       ~initial_state:(fun _ props ->
+                           let name = Js.to_string props##.name in
+                           object%js
+                             val mutable real_name = Js.string ("Hello " ^ name)
+                           end)
+                       (fun this ->
+                          R.create_dom_element "span" ~children:[R.text @@ Js.to_string this##.state##.real_name]
+                       )
+                    )
+        in
         let index = Dom_html.getElementById "js" in
         let element = R.create_element component ~props:(object%js
             val name = Js.string "bar"
@@ -99,37 +97,33 @@ let _ =
     "can handle some event for stateful component" >:- (fun () ->
         prepare ();
 
-        let module M = R.Component.Make_stateful(struct
-            class type t = object
-              method name: Js.js_string Js.t Js.readonly_prop
-            end
-          end)
-            (struct
-              class type t = object
-                method events: Js.js_string Js.t Js.js_array Js.t Js.prop
-              end
-            end) in
-
-        let component = M.make R.(component_spec
-            ~constructor:(fun this props ->
-                let name = props##.name in
-                this##.state := object%js
-                  val mutable events = Js.array [|name|]
-                end)
-            ~component_did_mount:(fun this ->
-                let event = Js.array [|Js.string "did_mount"|] in
-                this##setState (object%js
-                  val mutable events = this##.state##.events##concat event
-                end)
-              )
-            (fun this ->
-                let children = Js.to_array this##.state##.events |> Array.to_list in
-                let children = List.map (fun v ->
-                    let v = (Js.to_string v) ^ "\n" in R.text v
-                  ) children in
-                R.create_dom_element "span" ~children
-              )
-          ) in
+        let component = R.Component.make_stateful ~props:(module struct
+                                                           class type t = object
+                                                             method name: Js.js_string Js.t Js.readonly_prop
+                                                           end
+                                                         end)
+            ~spec:R.(component_spec
+                       ~initial_state:(fun _ props ->
+                           let name = props##.name in
+                           object%js
+                             val mutable events = Js.array [|name|]
+                           end
+                         )
+                       ~component_did_mount:(fun this ->
+                           let event = Js.array [|Js.string "did_mount"|] in
+                           this##setState (object%js
+                             val mutable events = this##.state##.events##concat event
+                           end)
+                         )
+                       (fun this ->
+                          let children = Js.to_array this##.state##.events |> Array.to_list in
+                          let children = List.map (fun v ->
+                              let v = (Js.to_string v) ^ "\n" in R.text v
+                            ) children in
+                          R.create_dom_element "span" ~children
+                       )
+                    )
+        in
         let index = Dom_html.getElementById "js" in
         let element = R.create_element component ~props:(object%js
             val name = Js.string "bar"
@@ -172,10 +166,10 @@ let _ =
         let index = Dom_html.getElementById "js" in
         let element = R.create_dom_element "span" ~props:(
             R.element_spec ()
-            ~class_name:"test_class"
-            ~on_key_down:(fun e ->
-                let key = Js.to_string e##.key in
-                Lwt.wakeup waker (assert_ok (key = "w")))
+              ~class_name:"test_class"
+              ~on_key_down:(fun e ->
+                  let key = Js.to_string e##.key in
+                  Lwt.wakeup waker (assert_ok (key = "w")))
           ) in
         R.dom##render element index;
 
@@ -201,8 +195,8 @@ let _ =
         let index = Dom_html.getElementById "js" in
         let element = R.create_dom_element "span" ~props:(
             R.element_spec ()
-            ~class_name:"test_class"
-            ~others:(object%js
+              ~class_name:"test_class"
+              ~others:(object%js
                 val tabIndex = "0"
               end)
           ) in
@@ -229,8 +223,8 @@ let _ =
         let index = Dom_html.getElementById "js" in
         let element = R.create_dom_element "span" ~props:(
             R.element_spec ()
-            ~class_name:"test_class"
-            ~others:(object%js
+              ~class_name:"test_class"
+              ~others:(object%js
                 val className = "override"
               end)
           ) in
@@ -272,16 +266,17 @@ let _ =
 
     "can specify key to original components in children" >:- (fun () ->
         prepare ();
-        let module M = R.Component.Make_stateless(struct
-            class type t = object
-              method name: Js.js_string Js.t Js.readonly_prop
-            end
-          end) in
-        let component = M.make (fun props ->
-            R.create_dom_element "span" ~children:[
-              R.text @@ Js.to_string props##.name
-            ]
-          ) in
+        let component = R.Component.make_stateless
+            ~props:(module struct
+                     class type t = object
+                       method name: Js.js_string Js.t Js.readonly_prop
+                     end
+                   end)
+            ~render:(fun props ->
+                R.create_dom_element "span" ~children:[
+                  R.text @@ Js.to_string props##.name
+                ]
+              ) in
 
         let index = Dom_html.getElementById "js" in
         let element = R.create_dom_element "div" ~props:(R.element_spec ~class_name:"test_class" ())
@@ -304,18 +299,19 @@ let _ =
       );
     "can wrap elements by fragment component" >:- (fun () ->
         prepare ();
-        let module M = R.Component.Make_stateless(struct
-            class type t = object
-              method name: Js.js_string Js.t Js.readonly_prop
-            end
-          end) in
-        let component = M.make (fun props ->
-            R.Core.fragment [
-              R.text @@ Js.to_string props##.name;
-              R.text @@ Js.to_string props##.name;
-              R.text @@ Js.to_string props##.name;
-            ]
-          ) in
+        let component = R.Component.make_stateless
+            ~props:(module struct
+                     class type t = object
+                       method name: Js.js_string Js.t Js.readonly_prop
+                     end
+                   end)
+            ~render:(fun props ->
+                R.Core.fragment [
+                  R.text @@ Js.to_string props##.name;
+                  R.text @@ Js.to_string props##.name;
+                  R.text @@ Js.to_string props##.name;
+                ]
+              ) in
 
         let index = Dom_html.getElementById "js" in
         let element = R.create_dom_element "div" ~props:(R.element_spec ~class_name:"test_class" ())
@@ -338,35 +334,33 @@ let _ =
       );
     "can fetch reference of DOM element" >:- (fun () ->
         prepare ();
-        let module M = R.Component.Make_stateful(struct
-            class type t = object
-              method name: Js.js_string Js.t Js.readonly_prop
-            end
-          end)(struct
-            class type t = object
-              method node: Dom_html.element Js.t Js.readonly_prop
-            end
-          end) in
+        let component = R.Component.make_stateful
+            ~props:(module struct
+                     class type t = object
+                       method name: Js.js_string Js.t Js.readonly_prop
+                     end
+                   end)
+            ~spec:R.(component_spec
+                       ~constructor:(fun this _ -> this##.nodes := Jstable.create ())
+                       ~component_did_mount:(fun this ->
+                           let open R.Ref_table in
+                           match find this##.nodes ~key:"node" with
+                           | None -> ()
+                           | Some e -> begin
+                               e##setAttribute (Js.string "data-test") (Js.string "value");
+                               e##setAttribute (Js.string "id") (Js.string "value");
+                             end
+                         )
+                       (fun this ->
+                          let props = this##.props in
+                          R.create_dom_element "span" ~_ref:(fun e ->
+                              R.Ref_table.(add this##.nodes ~key:"node" ~value:e);
+                            )
+                            ~children:[R.text @@ Js.to_string props##.name]
+                       )
+                    )
 
-        let component = M.make R.(component_spec
-            ~constructor:(fun this _ -> this##.nodes := Jstable.create ())
-            ~component_did_mount:(fun this ->
-                let open R.Ref_table in
-                match find this##.nodes ~key:"node" with
-                | None -> ()
-                | Some e -> begin
-                    e##setAttribute (Js.string "data-test") (Js.string "value");
-                    e##setAttribute (Js.string "id") (Js.string "value");
-                  end
-              )
-            (fun this ->
-                let props = this##.props in
-                R.create_dom_element "span" ~_ref:(fun e ->
-                    R.Ref_table.(add this##.nodes ~key:"node" ~value:e);
-                  )
-                  ~children:[R.text @@ Js.to_string props##.name]
-              )
-          ) in
+        in
         let index = Dom_html.getElementById "js" in
         let element = R.create_element component ~props:(object%js
             val name = Js.string "bar"
@@ -384,19 +378,19 @@ let _ =
 
     "can get children in component" >:- (fun () ->
         prepare ();
-        let module M = R.Component.Make_stateful(struct
-            class type t = object
-              method name: Js.js_string Js.t Js.readonly_prop
-            end
-          end)(struct type t = unit end) in
-
-        let component = M.make R.(component_spec
-            (fun this ->
-                let children = this##.props_defined##.children in
-                let count = R.Children.count children |> string_of_int in
-                R.create_dom_element "span" ~children:[R.text count]
-              )
-          ) in
+        let component = R.Component.make_stateful
+            ~props:(module struct
+                     class type t = object
+                       method name: Js.js_string Js.t Js.readonly_prop
+                     end
+                   end)
+            ~spec:R.(component_spec
+                       (fun this ->
+                          let children = this##.props_defined##.children in
+                          let count = R.Children.count children |> string_of_int in
+                          R.create_dom_element "span" ~children:[R.text count]
+                       )
+                    ) in
         let index = Dom_html.getElementById "js" in
         let element = R.create_element component ~props:(object%js
             val name = Js.string "bar"
@@ -412,24 +406,20 @@ let _ =
       );
     "can define custom object in this" >:- (fun () ->
         prepare ();
-        let module M = R.Component.Make_stateful_custom(struct
-            class type t = object
-              method name: Js.js_string Js.t Js.readonly_prop
-            end
-          end)(struct type t = unit end)
-            (struct
-              class type t = object
-                method v: string Js.prop
-              end
-            end)in
-
-        let component = M.make R.(
-            component_spec
-              ~constructor:(fun this _ -> this##.custom := object%js
-                               val mutable v = "foo"
-                             end)
-              (fun this -> R.create_dom_element "span" ~children:[R.text this##.custom##.v])
-          ) in
+        let component = R.Component.make_stateful_with_custom
+            ~props:(module struct
+                     class type t = object
+                       method name: Js.js_string Js.t Js.readonly_prop
+                     end
+                   end)
+            ~spec:R.(
+                component_spec
+                  ~initial_custom:(fun _ _ -> object%js
+                                    val mutable v = "foo"
+                                  end)
+                  (fun this -> R.create_dom_element "span" ~children:[R.text this##.custom##.v])
+              )
+        in
         let index = Dom_html.getElementById "js" in
         let element = R.create_element component ~props:(object%js
             val name = Js.string "bar"

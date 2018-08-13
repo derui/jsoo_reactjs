@@ -1,3 +1,7 @@
+(alias
+ (name gen)
+ (action (run %{bin:npm} run compile)))
+
 (library
  (name jsoo_reactjs)
  (public_name jsoo_reactjs)

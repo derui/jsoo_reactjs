@@ -8,6 +8,14 @@ function _createClass(React, spec) {
       if (spec.constructor) {
         spec.constructor.call(this, props);
       }
+
+      if (spec.initialState) {
+        this.state = spec.initialState.call(this, props);
+      }
+
+      if (spec.initialCustom) {
+        this.custom = spec.initialCustom.call(this, props);
+      }
     }
 
     componentWillMount() {
