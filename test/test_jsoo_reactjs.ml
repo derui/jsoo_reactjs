@@ -406,7 +406,7 @@ let _ =
       );
     "can define custom object in this" >:- (fun () ->
         prepare ();
-        let component = R.Component.make_stateful_with_custom
+        let component = R.Component.make_stateful
             ~props:(module struct
                      class type t = object
                        method name: Js.js_string Js.t Js.readonly_prop
