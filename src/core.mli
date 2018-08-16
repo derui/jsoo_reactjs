@@ -44,22 +44,22 @@ end
 
 module E = Jsoo_reactjs_event
 
-type 'a element_spec constraint 'a = < .. >
+type ('a, 'element) element_spec constraint 'a = < .. >
 
 val element_spec:
   ?key:string ->
   ?class_name:string ->
-  ?on_key_down:(E.Keyboard_event.t -> unit) ->
-  ?on_key_press:(E.Keyboard_event.t -> unit) ->
-  ?on_key_up:(E.Keyboard_event.t -> unit) ->
-  ?on_change:(E.Input_event.t -> unit) ->
-  ?on_input:(E.Input_event.t -> unit) ->
-  ?on_scroll:(E.Scroll_event.t -> unit) ->
-  ?on_focus:(E.Focus_event.t -> unit) ->
-  ?on_blur:(E.Focus_event.t -> unit) ->
+  ?on_key_down:('element E.Keyboard_event.t -> unit) ->
+  ?on_key_press:('element E.Keyboard_event.t -> unit) ->
+  ?on_key_up:('element E.Keyboard_event.t -> unit) ->
+  ?on_change:('element E.Input_event.t -> unit) ->
+  ?on_input:('element E.Input_event.t -> unit) ->
+  ?on_scroll:('element E.Scroll_event.t -> unit) ->
+  ?on_focus:('element E.Focus_event.t -> unit) ->
+  ?on_blur:('element E.Focus_event.t -> unit) ->
   ?default_value:string ->
   ?others:(< .. > as 'a) Js.t ->
-  unit -> 'a element_spec
+  unit -> ('a, 'element) element_spec
 
 (* The module providing component spec to be able to create component via React API.
    Some of fields are optional and omit if you do not need their.
@@ -116,11 +116,13 @@ val create_element : ?key:string ->
   ?children:React.element Js.t list ->
   ('a, 'b, _) React.component -> React.element Js.t
 
+type 'a tag = string
+
 (** Create element with tag *)
 val create_dom_element: ?key:string ->
   ?_ref:(Dom_html.element Js.t -> unit) ->
-  ?props:'a element_spec -> ?children:React.element Js.t list ->
-  string -> React.element Js.t
+  ?props:('a, 'element) element_spec -> ?children:React.element Js.t list ->
+  'element tag -> React.element Js.t
 
 (** Create Fragment component to wrap empty dom *)
 val fragment: ?key:string -> React.element Js.t list -> React.element Js.t

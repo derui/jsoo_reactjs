@@ -113,17 +113,17 @@ end
 module E = Jsoo_reactjs_event
 
 module Element_spec = struct
-  type 'a t = {
+  type ('a, 'element) t = {
     key: string option;
     class_name: string option;
-    on_key_down: (E.Keyboard_event.t -> unit) option;
-    on_key_press: (E.Keyboard_event.t -> unit) option;
-    on_key_up: (E.Keyboard_event.t -> unit) option;
-    on_change: (E.Input_event.t -> unit) option;
-    on_input: (E.Input_event.t -> unit) option;
-    on_scroll: (E.Scroll_event.t -> unit) option;
-    on_focus: (E.Focus_event.t -> unit) option;
-    on_blur: (E.Focus_event.t -> unit) option;
+    on_key_down: ('element E.Keyboard_event.t -> unit) option;
+    on_key_press: ('element E.Keyboard_event.t -> unit) option;
+    on_key_up: ('element E.Keyboard_event.t -> unit) option;
+    on_change: ('element E.Input_event.t -> unit) option;
+    on_input: ('element E.Input_event.t -> unit) option;
+    on_scroll: ('element E.Scroll_event.t -> unit) option;
+    on_focus: ('element E.Focus_event.t -> unit) option;
+    on_blur: ('element E.Focus_event.t -> unit) option;
     default_value: string option;
     others: (< .. > as 'a) Js.t option;
   }
@@ -152,7 +152,7 @@ module Element_spec = struct
     end
 end
 
-type 'a element_spec = 'a Element_spec.t
+type ('a, 'element) element_spec = ('a, 'element) Element_spec.t
 
 let element_spec ?key ?class_name ?on_key_down ?on_key_press ?on_key_up
     ?on_change ?on_input
@@ -320,6 +320,8 @@ let merge_other_keys js =
       Js.Unsafe.delete js (Js.string "others");
       js
     end
+
+type 'element tag = string
 
 let create_dom_element ?key ?_ref ?props ?(children=[]) tag =
   let tag = Js.string tag in

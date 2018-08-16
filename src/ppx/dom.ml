@@ -46,8 +46,11 @@ let expand ~loc ~path:_ (ident : longident) args =
   | Some dom -> begin
       let f = [%expr Jsoo_reactjs.create_dom_element] in
       let args = build_args loc args in
-      let dom = Ast_builder.Default.estring ~loc dom in
-      let args = (Nolabel, dom) :: List.rev args |> List.rev in
+      let root_mod = Ast.Lident "Jsoo_reactjs"
+      and tag_mod = "Tags" in
+      let ident = Ast_builder.Default.Located.mk ~loc Ast.(Ldot (Ldot (root_mod, tag_mod), dom)) in
+      let ident = Ast_builder.Default.pexp_ident ~loc ident in
+      let args = (Nolabel, ident) :: List.rev args |> List.rev in
       Ast_builder.Default.pexp_apply ~loc f args
     end
 
