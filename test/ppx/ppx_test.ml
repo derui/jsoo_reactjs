@@ -23,6 +23,7 @@ let () =
             class type t = object end
           end)
             ~render:(fun _ -> [%e span ~key:"span" ~class_name:"foo" ["text"]]) in
+        let _ = R.create_dom_element ~props:(R.element_spec ()) R.Tags.a in
         let renderer = new%js R.Test_renderer.shallow_ctor in
         renderer##render (R.create_element t);
         let output = renderer##getRenderOutput in

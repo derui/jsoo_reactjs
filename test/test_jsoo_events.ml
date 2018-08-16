@@ -24,10 +24,7 @@ let suite () =
         prepare ();
         let value = ref false in
         let on_focus _ = value := true in
-        let input = R.create_dom_element "input" ~props:R.(
-            element_spec
-              ~on_focus
-              ~default_value:"input" ()) in
+        let input = [%e input ~on_focus ~default_value:"input"] in
         let index = Dom_html.getElementById "js" in
         R.dom##render input index;
 
@@ -43,9 +40,7 @@ let suite () =
         prepare ();
         let value = ref false in
         let on_blur _ = value := true in
-        let input = R.create_dom_element "input" ~props:R.(element_spec
-                                                    ~on_blur
-                                                    ~default_value:"input" ()) in
+        let input = [%e input ~on_blur ~default_value:"input"] in
         let index = Dom_html.getElementById "js" in
         R.dom##render input index;
 

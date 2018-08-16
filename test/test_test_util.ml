@@ -9,9 +9,7 @@ let presenter () =
           method text: Js.js_string Js.t Js.readonly_prop
         end
       end)
-      ~render:(fun prop ->
-          R.create_dom_element "div" ~children:[R.text @@ Js.to_string prop##.text]
-        )
+      ~render:(fun prop -> [%e div [R.text @@ Js.to_string prop##.text]])
 
 let nesting () =
   R.Component.make_stateless
@@ -27,8 +25,7 @@ let nesting () =
               prop##.list
                          |> Js.to_array
                          |> Array.to_list
-          in
-          R.create_dom_element "div" ~children
+          in [%e div children]
         )
 
 let () =

@@ -22,7 +22,7 @@ let suite () =
   "React DOM element" >::: [
     "can create input element with default value" >:- (fun () ->
         prepare ();
-        let input = R.create_dom_element "input" ~props:R.(element_spec ~default_value:"input" ()) in
+        let input = [%e input ~default_value:"input"] in
         let index = Dom_html.getElementById "js" in
         R.dom##render input index;
 
@@ -42,9 +42,7 @@ let suite () =
           let v = Js.Opt.get (e##.target##getAttribute (Js.string "value")) (fun () -> Js.string "") in
           value := Js.to_string v
         in
-        let input = R.create_dom_element "input" ~props:R.(element_spec
-                                                    ~on_change
-                                                    ~default_value:"input" ()) in
+        let input = [%e input ~on_change ~default_value:"input"] in
         let index = Dom_html.getElementById "js" in
         R.dom##render input index;
 

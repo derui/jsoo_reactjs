@@ -116,7 +116,10 @@ val create_element : ?key:string ->
   ?children:React.element Js.t list ->
   ('a, 'b, _) React.component -> React.element Js.t
 
-type 'a tag = string
+type 'a tag
+
+(** convert string to tag *)
+val tag_of_string: string -> 'a tag
 
 (** Create element with tag *)
 val create_dom_element: ?key:string ->

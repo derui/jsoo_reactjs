@@ -323,6 +323,8 @@ let merge_other_keys js =
 
 type 'element tag = string
 
+let tag_of_string v = v
+
 let create_dom_element ?key ?_ref ?props ?(children=[]) tag =
   let tag = Js.string tag in
   let common_props =

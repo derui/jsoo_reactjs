@@ -8,11 +8,11 @@
  (modules test_jsoo_reactjs test_jsoo_dom_input test_jsoo_events)
  (libraries js_of_ocaml jsoo_reactjs mocha_of_ocaml.async)
  (js_of_ocaml (flags ("--pretty" "--source-map-inline")))
- (preprocess (pps js_of_ocaml-ppx)))
+ (preprocess (pps js_of_ocaml-ppx jsoo_reactjs.ppx)))
 
 (executable
  (name test_test_util)
  (modules test_test_util)
  (libraries js_of_ocaml jsoo_reactjs mocha_of_ocaml.async snap-shot-it_of_ocaml)
  (js_of_ocaml (flags ("--pretty" "--source-map-inline")))
- (preprocess (pps js_of_ocaml-ppx)))
+ (preprocess (pps js_of_ocaml-ppx jsoo_reactjs.ppx)))
