@@ -2,7 +2,6 @@ const path = require("path");
 
 module.exports = {
   // どのファイルをビルドするのかを指定。複数可。
-  mode: "development",
   entry: [
     './_build/default/test/test_jsoo_reactjs.bc.js'
   ],
