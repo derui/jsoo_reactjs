@@ -1,5 +1,5 @@
-
-let react_create_class_raw = {|
+let react_create_class_raw =
+  {|
 (function () {
 "use strict";
 

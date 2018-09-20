@@ -1,0 +1,5 @@
+margin = 100
+break-cases = fit
+module-item-spacing = compact
+field-space = loose
+type-decl = sparse

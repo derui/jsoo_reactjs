@@ -1,3 +1,1 @@
-let () =
-  Dom.register ();
-  Component.register ();
+let () = Dom.register () ; Component.register ()
