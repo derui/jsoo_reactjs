@@ -2,6 +2,7 @@
 module React : sig
   type element
   type children
+  type ref_
 
   class type defined_props =
     object
@@ -18,8 +19,6 @@ module React : sig
 
       method state : 'state Js.prop
 
-      method nodes : Dom_html.element Js.t Jstable.t Js.prop
-
       method custom : 'custom Js.prop
     end
 
@@ -28,7 +27,7 @@ end
 
 module Children : sig
   val map :
-       f:(React.element Js.t -> React.element Js.t)
+    f:(React.element Js.t -> React.element Js.t)
     -> React.children Js.t
     -> React.element Js.t list option
   (** A binding of React.Children.map to be friendly for OCaml *)
@@ -49,12 +48,21 @@ module Children : sig
   (** Convert children to element to be able to pass argument as create_element *)
 end
 
+(** A module mapped Refs in API of React.js . *)
+module Ref : sig
+  val create : unit -> React.ref_ Js.t
+  (** [create ()] maps [React.createRef()]. *)
+
+  val current : React.ref_ Js.t -> Dom_html.element Js.t option
+  (** [current ref_] maps [ref_.current]. But this API forces to handle undefined by user. *)
+end
+
 module E = Jsoo_reactjs_event
 
 type ('a, 'element) element_spec constraint 'a = < .. >
 
 val element_spec :
-     ?key:string
+  ?key:string
   -> ?class_name:string
   -> ?on_key_down:('element E.Keyboard_event.t -> unit)
   -> ?on_key_press:('element E.Keyboard_event.t -> unit)
@@ -77,12 +85,12 @@ module Component_spec : sig
     ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> 'props Js.t -> unit
 
   type ('props, 'state, 'custom) initial_custom =
-       ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t
+    ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t
     -> 'props Js.t
     -> 'custom Js.t
 
   type ('props, 'state, 'custom) initial_state =
-       ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t
+    ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t
     -> 'props Js.t
     -> 'state Js.t
 
@@ -90,7 +98,7 @@ module Component_spec : sig
     ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> React.element Js.t
 
   type ('props, 'state, 'custom, 'result) component_update_handler =
-       ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t
+    ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t
     -> 'props Js.t
     -> 'state Js.t
     -> 'result
@@ -105,18 +113,18 @@ module Component_spec : sig
 end
 
 val component_spec :
-     ?constructor:('props, 'state, 'custom) Component_spec.constructor
+  ?constructor:('props, 'state, 'custom) Component_spec.constructor
   -> ?initial_state:('props, 'state, 'custom) Component_spec.initial_state
   -> ?initial_custom:('props, 'state, 'custom) Component_spec.initial_custom
   -> ?should_component_update:( 'props
                               , 'state
                               , 'custom
                               , bool )
-                              Component_spec.component_update_handler
+    Component_spec.component_update_handler
   -> ?component_will_receive_props:( 'props
                                    , 'state
                                    , 'custom )
-                                   Component_spec.component_will_receive_props
+    Component_spec.component_will_receive_props
   -> ?component_will_mount:('props, 'state, 'custom) Component_spec.lifecycle_handler
   -> ?component_will_unmount:('props, 'state, 'custom) Component_spec.lifecycle_handler
   -> ?component_did_mount:('props, 'state, 'custom) Component_spec.lifecycle_handler
@@ -134,7 +142,8 @@ val create_stateless_component :
 (** Create stateless component with renderer *)
 
 val create_element :
-     ?key:string
+  ?key:string
+  -> ?_ref:React.ref_ Js.t Js.optdef
   -> ?props:(< .. > as 'a) Js.t
   -> ?children:React.element Js.t list
   -> ('a, 'b, _) React.component
@@ -147,8 +156,8 @@ val tag_of_string : string -> 'a tag
 (** convert string to tag *)
 
 val create_dom_element :
-     ?key:string
-  -> ?_ref:(Dom_html.element Js.t -> unit)
+  ?key:string
+  -> ?_ref:React.ref_ Js.t Js.optdef
   -> ?props:('a, 'element) element_spec
   -> ?children:React.element Js.t list
   -> 'element tag

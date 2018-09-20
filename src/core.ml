@@ -6,13 +6,13 @@ module Helper = struct
 
   module Js_object = struct
     let assign : (< .. > as 'a) Js.t -> (< .. > as 'b) Js.t -> (< .. > as 'c) Js.t =
-     fun dest source ->
-      Js.Unsafe.(meth_call global##._Object "assign" [|inject dest; inject source|])
+      fun dest source ->
+        Js.Unsafe.(meth_call global##._Object "assign" [|inject dest; inject source|])
 
     let copy : (< .. > as 'a) Js.t -> 'a Js.t =
-     fun obj ->
-      let newobj = Js.Unsafe.(meth_call global##._Object "create" [|inject Js.null|]) in
-      assign newobj obj
+      fun obj ->
+        let newobj = Js.Unsafe.(meth_call global##._Object "create" [|inject Js.null|]) in
+        assign newobj obj
   end
 end
 
@@ -20,6 +20,12 @@ end
 module React = struct
   type element
   type children
+
+  (** binding for ref *)
+  class type ref_ =
+    object
+      method current : Dom_html.element Js.t Js.optdef_prop
+    end
 
   class type defined_props =
     object
@@ -35,8 +41,6 @@ module React = struct
       method state : 'state Js.prop
 
       method setState : 'state -> unit Js.meth
-
-      method nodes : Dom_html.element Js.t Jstable.t Js.prop
 
       method custom : 'custom Js.prop
     end
@@ -59,7 +63,7 @@ module React = struct
     class type t =
       object
         method map :
-             children Js.t
+          children Js.t
           -> (element Js.t, element Js.t) Js.meth_callback
           -> element Js.t Js.js_array Js.t Js.optdef Js.meth
 
@@ -76,19 +80,19 @@ module React = struct
   class type react =
     object
       method createElement_stateful :
-           ('a, _, _) stateful_component Js.t
+        ('a, _, _) stateful_component Js.t
         -> 'a Js.opt
         -> element Js.t Js.js_array Js.t Js.optdef
         -> element Js.t Js.meth
 
       method createElement_statefulWithChild :
-           ('a, _, _) stateful_component Js.t
+        ('a, _, _) stateful_component Js.t
         -> 'a Js.opt
         -> element Js.t Js.optdef
         -> element Js.t Js.meth
 
       method createElement_stateless :
-           ('a -> element Js.t)
+        ('a -> element Js.t)
         -> 'a Js.opt
         -> element Js.t Js.js_array Js.t Js.optdef
         -> element Js.t Js.meth
@@ -97,7 +101,7 @@ module React = struct
         ('a -> element Js.t) -> 'a Js.opt -> element Js.t Js.optdef -> element Js.t Js.meth
 
       method createElement_tag :
-           Js.js_string Js.t
+        Js.js_string Js.t
         -> 'a Js.opt
         -> element Js.t Js.js_array Js.t Js.optdef
         -> element Js.t Js.meth
@@ -106,7 +110,7 @@ module React = struct
         Js.js_string Js.t -> 'a Js.opt -> element Js.t Js.optdef -> element Js.t Js.meth
 
       method createElement_component :
-           Js.js_string Js.t
+        Js.js_string Js.t
         -> 'a Js.opt
         -> element Js.t Js.js_array Js.t Js.optdef
         -> element Js.t Js.meth
@@ -114,6 +118,8 @@ module React = struct
       method _Fragment : Fragment.t Js.t Js.readonly_prop
 
       method _Children : Children.t Js.t Js.readonly_prop
+
+      method createRef : ref_ Js.t Js.meth
     end
 
   (* create component from spec. *)
@@ -139,7 +145,12 @@ module Children = struct
     Js.to_array ary |> Array.to_list
 
   let to_element : React.children Js.t -> React.element Js.t =
-   fun children -> Js.Unsafe.coerce children
+    fun children -> Js.Unsafe.coerce children
+end
+
+module Ref = struct
+  let create () = React.t##createRef
+  let current r = Js.Optdef.to_option r##.current
 end
 
 module E = Jsoo_reactjs_event
@@ -220,12 +231,12 @@ module Component_spec = struct
     ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> 'props Js.t -> unit
 
   type ('props, 'state, 'custom) initial_custom =
-       ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t
+    ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t
     -> 'props Js.t
     -> 'custom Js.t
 
   type ('props, 'state, 'custom) initial_state =
-       ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t
+    ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t
     -> 'props Js.t
     -> 'state Js.t
 
@@ -233,7 +244,7 @@ module Component_spec = struct
     ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t -> React.element Js.t
 
   type ('props, 'state, 'custom, 'result) component_update_handler =
-       ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t
+    ('props Js.t, 'state Js.t, 'custom Js.t) React.stateful_component Js.t
     -> 'props Js.t
     -> 'state Js.t
     -> 'result
@@ -322,66 +333,68 @@ let create_stateless_component spec =
   React.Stateless spec
 
 (* alias function for React.createElement *)
-let create_element ?key ?props ?(children = []) component =
+let create_element ?key ?_ref ?props ?(children = []) component =
   let common_props =
     object%js
       val key =
         let key = Js.Optdef.option key in
         Js.Optdef.map key Js.string
+
+      val _ref = match _ref with None -> Js.undefined | Some v -> v
     end
   in
   let props =
     match props with
     | None ->
-        (* Forcely convert type to send key prop to React without type error *)
-        Js.Opt.return (Js.Unsafe.coerce common_props : 'a Js.t)
+      (* Forcely convert type to send key prop to React without type error *)
+      Js.Opt.return (Js.Unsafe.coerce common_props : 'a Js.t)
     | Some props ->
-        let copied_props = Helper.Js_object.copy props in
-        Helper.Js_object.assign copied_props common_props |> Js.Opt.return
+      let copied_props = Helper.Js_object.copy props in
+      Helper.Js_object.assign copied_props common_props |> Js.Opt.return
   in
   match component with
   | React.Stateful component -> (
-    match children with
-    | [] -> React.t##createElement_stateful component props Js.Optdef.empty
-    | [v] -> React.t##createElement_statefulWithChild component props (Js.Optdef.return v)
-    | _ as v ->
+      match children with
+      | [] -> React.t##createElement_stateful component props Js.Optdef.empty
+      | [v] -> React.t##createElement_statefulWithChild component props (Js.Optdef.return v)
+      | _ as v ->
         React.t##createElement_stateful component props
           (Js.Optdef.return @@ Js.array @@ Array.of_list v) )
   | React.Stateless component -> (
-    match children with
-    | [] -> React.t##createElement_stateless component props Js.Optdef.empty
-    | [v] -> React.t##createElement_statelessWithChild component props (Js.Optdef.return v)
-    | _ as v ->
+      match children with
+      | [] -> React.t##createElement_stateless component props Js.Optdef.empty
+      | [v] -> React.t##createElement_statelessWithChild component props (Js.Optdef.return v)
+      | _ as v ->
         React.t##createElement_stateless component props
           (Js.Optdef.return @@ Js.array @@ Array.of_list v) )
 
 module StringSet = Set.Make (struct
-  type t = string
+    type t = string
 
-  let compare = Pervasives.compare
-end)
+    let compare = Pervasives.compare
+  end)
 
 let merge_other_keys js =
   match Js.Optdef.to_option js##.others with
   | None -> js
   | Some others ->
-      let merge_keys =
-        Js.object_keys others |> Js.to_array |> Array.map Js.to_string |> Array.to_list
-      and defined_props =
-        Js.object_keys js |> Js.to_array |> Array.map Js.to_string |> Array.to_list
-        |> List.filter (fun v -> v <> "others")
-      in
-      let merge_key_set = StringSet.of_list merge_keys
-      and defined_prop_set = StringSet.of_list defined_props in
-      let diff_keys = StringSet.(diff merge_key_set defined_prop_set |> elements) in
-      let diff_keys = List.map Js.string diff_keys |> Array.of_list in
-      Array.iter
-        (fun key ->
-          let v = Js.Unsafe.get others key in
-          Js.Unsafe.set js key v )
-        diff_keys ;
-      Js.Unsafe.delete js (Js.string "others") ;
-      js
+    let merge_keys =
+      Js.object_keys others |> Js.to_array |> Array.map Js.to_string |> Array.to_list
+    and defined_props =
+      Js.object_keys js |> Js.to_array |> Array.map Js.to_string |> Array.to_list
+      |> List.filter (fun v -> v <> "others")
+    in
+    let merge_key_set = StringSet.of_list merge_keys
+    and defined_prop_set = StringSet.of_list defined_props in
+    let diff_keys = StringSet.(diff merge_key_set defined_prop_set |> elements) in
+    let diff_keys = List.map Js.string diff_keys |> Array.of_list in
+    Array.iter
+      (fun key ->
+         let v = Js.Unsafe.get others key in
+         Js.Unsafe.set js key v )
+      diff_keys ;
+    Js.Unsafe.delete js (Js.string "others") ;
+    js
 
 type 'element tag = string
 
@@ -395,19 +408,17 @@ let create_dom_element ?key ?_ref ?props ?(children = []) tag =
         let key = Js.Optdef.option key in
         Js.Optdef.map key Js.string
 
-      val _ref =
-        let _ref = Js.Optdef.option _ref in
-        Js.Optdef.map _ref Js.wrap_callback
+      val _ref = match _ref with None -> Js.undefined | Some v -> v
     end
   in
   let props =
     match props with
     | None -> Js.Opt.return common_props
     | Some props ->
-        let js = Element_spec.to_js props in
-        let js = merge_other_keys js in
-        let copied_props = Helper.Js_object.copy js in
-        Helper.Js_object.assign copied_props common_props |> Js.Opt.return
+      let js = Element_spec.to_js props in
+      let js = merge_other_keys js in
+      let copied_props = Helper.Js_object.copy js in
+      Helper.Js_object.assign copied_props common_props |> Js.Opt.return
   in
   match children with
   | [] -> React.t##createElement_tag tag props Js.Optdef.empty
