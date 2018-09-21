@@ -143,7 +143,6 @@ val create_stateless_component :
 
 val create_element :
   ?key:string
-  -> ?_ref:React.ref_ Js.t Js.optdef
   -> ?props:(< .. > as 'a) Js.t
   -> ?children:React.element Js.t list
   -> ('a, 'b, _) React.component

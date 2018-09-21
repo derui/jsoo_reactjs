@@ -333,14 +333,12 @@ let create_stateless_component spec =
   React.Stateless spec
 
 (* alias function for React.createElement *)
-let create_element ?key ?_ref ?props ?(children = []) component =
+let create_element ?key ?props ?(children = []) component =
   let common_props =
     object%js
       val key =
         let key = Js.Optdef.option key in
         Js.Optdef.map key Js.string
-
-      val _ref = match _ref with None -> Js.undefined | Some v -> v
     end
   in
   let props =
