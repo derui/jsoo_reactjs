@@ -1,6 +1,6 @@
 {
   "name": "jsoo_reactjs",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "scripts": {
     "compile": "node scripts/gen_compiled_module.js",
     "bundle:test": "webpack",
