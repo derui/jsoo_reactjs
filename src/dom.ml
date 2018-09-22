@@ -17,7 +17,7 @@ end = struct
       method unmountComponentAtNode : Dom_html.element Js.t -> unit Js.meth
     end
 
-  let t : dom Js.t = Js.Unsafe.pure_js_expr "require('react-dom')"
+  let t : dom Js.t = Js.Unsafe.js_expr "require('react-dom')"
 end
 
 (* Export ReactDOM API *)

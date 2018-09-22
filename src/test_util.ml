@@ -16,4 +16,4 @@ class type t =
     method _Simulate : simulate Js.t Js.readonly_prop
   end
 
-let instance : t Js.t = Js.Unsafe.pure_js_expr "require('react-dom/test-utils')"
+let instance : t Js.t = Js.Unsafe.js_expr "require('react-dom/test-utils')"

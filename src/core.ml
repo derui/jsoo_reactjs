@@ -123,7 +123,7 @@ module React = struct
     end
 
   (* create component from spec. *)
-  let t : react Js.t = Js.Unsafe.pure_js_expr "require('react')"
+  let t : react Js.t = Js.Unsafe.js_expr "require('react')"
 end
 
 (** binding for React.Children *)

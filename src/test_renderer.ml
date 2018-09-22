@@ -17,5 +17,4 @@ class type t =
     method getRenderOutput : shallow Js.t Js.meth
   end
 
-let shallow_ctor : t Js.t Js.constr =
-  Js.Unsafe.pure_js_expr "require('react-test-renderer/shallow')"
+let shallow_ctor : t Js.t Js.constr = Js.Unsafe.js_expr "require('react-test-renderer/shallow')"
