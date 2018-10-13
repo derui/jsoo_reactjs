@@ -3,3 +3,4 @@ break-cases = fit
 module-item-spacing = compact
 field-space = loose
 type-decl = sparse
+break-infix = fit-or-vertical
