@@ -49,6 +49,8 @@ module React = struct
     | Stateful of ('props Js.t, 'state Js.t, 'custom Js.t) stateful_component Js.t
     | Stateless of ('props Js.t -> element Js.t)
 
+  type 'props native_component
+
   module Fragment = struct
     class type props =
       object
@@ -110,10 +112,13 @@ module React = struct
         Js.js_string Js.t -> 'a Js.opt -> element Js.t Js.optdef -> element Js.t Js.meth
 
       method createElement_component :
-        Js.js_string Js.t
+        'a native_component Js.t
         -> 'a Js.opt
         -> element Js.t Js.js_array Js.t Js.optdef
         -> element Js.t Js.meth
+
+      method createElement_componentWithChild :
+        'a native_component Js.t -> 'a Js.opt -> element Js.t Js.optdef -> element Js.t Js.meth
 
       method _Fragment : Fragment.t Js.t Js.readonly_prop
 
@@ -379,7 +384,10 @@ let merge_other_keys js =
     let merge_keys =
       Js.object_keys others |> Js.to_array |> Array.map Js.to_string |> Array.to_list
     and defined_props =
-      Js.object_keys js |> Js.to_array |> Array.map Js.to_string |> Array.to_list
+      Js.object_keys js
+      |> Js.to_array
+      |> Array.map Js.to_string
+      |> Array.to_list
       |> List.filter (fun v -> v <> "others")
     in
     let merge_key_set = StringSet.of_list merge_keys
@@ -423,6 +431,28 @@ let create_dom_element ?key ?_ref ?props ?(children = []) tag =
   | [v] -> React.t##createElement_tagWithChild tag props (Js.Optdef.return v)
   | _ as v -> React.t##createElement_tag tag props (Js.Optdef.return @@ Js.array @@ Array.of_list v)
 
+let create_native_element ?key ?props ?(children = []) component =
+  let common_props =
+    object%js
+      val key =
+        let key = Js.Optdef.option key in
+        Js.Optdef.map key Js.string
+    end
+  in
+  let props =
+    match props with
+    | None -> Js.Unsafe.coerce common_props |> Js.Opt.return
+    | Some props ->
+      let copied_props = Helper.Js_object.copy props in
+      Helper.Js_object.assign copied_props common_props |> Js.Opt.return
+  in
+  match children with
+  | [] -> React.t##createElement_component component props Js.Optdef.empty
+  | [v] -> React.t##createElement_componentWithChild component props (Js.Optdef.return v)
+  | _ as v ->
+    React.t##createElement_component component props
+      (Array.of_list v |> Js.array |> Js.Optdef.return)
+
 let fragment ?key children =
   let common_props =
     object%js
@@ -434,5 +464,7 @@ let fragment ?key children =
   let children = Js.Optdef.return @@ Js.array @@ Array.of_list children in
   React.t##createElement_stateful React.t##._Fragment (Js.Opt.return common_props) children
 
+let wrap f = Js.wrap_callback f |> Obj.magic
+let wrap2 f = Js.wrap_callback f |> Obj.magic
 let text v = Obj.magic @@ Js.string v
 let empty () = Obj.magic @@ Js.null

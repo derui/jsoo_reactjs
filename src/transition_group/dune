@@ -1,0 +1,5 @@
+(library
+ (name jsoo_reactjs_transition_group)
+ (public_name jsoo_reactjs.transition_group)
+ (libraries jsoo_reactjs)
+ (preprocess (pps js_of_ocaml-ppx)))

@@ -23,6 +23,7 @@ module React : sig
     end
 
   type ('props, 'state, 'custom) component
+  type 'props native_component
 end
 
 module Children : sig
@@ -162,6 +163,20 @@ val create_dom_element :
   -> 'element tag
   -> React.element Js.t
 (** Create element with tag *)
+
+val create_native_element :
+  ?key:string
+  -> ?props:(< .. > as 'a) Js.t
+  -> ?children:React.element Js.t list
+  -> 'a Js.t React.native_component Js.t
+  -> React.element Js.t
+(** Create element with native component such as CSSTransition and others. *)
+
+val wrap : (_ -> React.element Js.t) -> React.element Js.t
+(** [wrap f] makes function as element if the component needed function as children. *)
+
+val wrap2 : (_ -> _ -> React.element Js.t) -> React.element Js.t
+(** [wrap2 f] makes 2-arguments function as element if the component needed function as children. *)
 
 val fragment : ?key:string -> React.element Js.t list -> React.element Js.t
 (** Create Fragment component to wrap empty dom *)

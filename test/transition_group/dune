@@ -1,0 +1,10 @@
+(alias
+ (name runtest)
+ (deps css_transition_group_test.bc.js)
+ (action (run npm test)))
+
+(executable
+ (name css_transition_group_test)
+ (libraries js_of_ocaml jsoo_reactjs jsoo_reactjs.transition_group mocha_of_ocaml.async)
+ (js_of_ocaml (flags ("--pretty" "--source-map-inline")))
+ (preprocess (pps js_of_ocaml-ppx jsoo_reactjs.ppx)))
