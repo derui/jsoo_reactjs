@@ -30,7 +30,7 @@ let () =
              let index = Dom_html.getElementById "js" in
              R.dom##render group index ;
              let open Lwt.Infix in
-             Lwt_js.sleep 300.0
+             Lwt_js.sleep 0.0
              >>= fun () ->
              let group = Dom_html.document##querySelector Js.(string "input") in
              assert_ok (group |> Js.Opt.to_option <> None) |> Lwt.return ) ]
